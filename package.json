@@ -1,0 +1,11 @@
+{
+  "name": "fandomscraper-app",
+  "private": true,
+  "devDependencies": {
+    "turbo": "^1.10.2"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build"
+  }
+}

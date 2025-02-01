@@ -1,4 +1,4 @@
-const BASE_URL = 'https://fandomscraper-production.up.railway.app'
+const BASE_URL = 'http://localhost:3000'
 
 export const api = {
     async getAvailableWikis() {

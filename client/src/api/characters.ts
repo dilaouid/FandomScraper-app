@@ -1,7 +1,7 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import type { Character, QueryParams } from '../types'
 
-const BASE_URL = 'https://fandomscraper-production.up.railway.app'
+const BASE_URL = 'http://localhost:3000'
 
 interface CharacterResponse {
     data: Character[]
