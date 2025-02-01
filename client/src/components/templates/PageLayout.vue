@@ -11,12 +11,12 @@ const router = useRouter()
 
         <!-- Header/Navigation -->
         <header class="relative z-10">
-            <nav class="container mx-auto px-4 py-6">
+            <!-- <nav class="container mx-auto px-4 py-6">
                 <button v-if="router.currentRoute.value.path !== '/'" @click="router.back()"
                     class="text-white hover:text-white/80 transition-colors">
                     ← Retour
                 </button>
-            </nav>
+            </nav> -->
         </header>
 
         <!-- Main content -->
