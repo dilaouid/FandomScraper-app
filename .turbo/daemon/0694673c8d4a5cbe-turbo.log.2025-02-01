@@ -10887,3 +10887,22 @@
 2025-02-01T20:33:45.295467Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("fandom-scraper-client"), path: AnchoredSystemPathBuf("client") }}))
 2025-02-01T20:33:59.899932Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("client\\src\\components\\molecules\\WikiCard.vue")}
 2025-02-01T20:33:59.899953Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("fandom-scraper-client"), path: AnchoredSystemPathBuf("client") }}))
+2025-02-01T20:52:09.809358Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\cookies"), AnchoredSystemPathBuf(".turbo\\cookies\\1.cookie")}
+2025-02-01T20:52:09.809383Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-02-01T21:05:49.202019Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(""), AnchoredSystemPathBuf("_tmp_436_63418ab237bbd74cc27e9b64bf1f8083")}
+2025-02-01T21:05:49.202040Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-02-01T21:05:49.696632Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("server\\node_modules")}
+2025-02-01T21:05:49.696652Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("fandomscraper-api"), path: AnchoredSystemPathBuf("server") }}))
+2025-02-01T21:05:49.839721Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules")}
+2025-02-01T21:05:49.839735Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-02-01T21:05:56.394935Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(""), AnchoredSystemPathBuf("_tmp_46396_531951a79bee1f5dde3d3320d1fdb980")}
+2025-02-01T21:05:56.394953Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-02-01T21:05:59.495175Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("pnpm-lock.yaml.2992976121"), AnchoredSystemPathBuf("pnpm-lock.yaml"), AnchoredSystemPathBuf(""), AnchoredSystemPathBuf("server\\node_modules")}
+2025-02-01T21:05:59.495193Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }, WorkspacePackage { name: Other("fandomscraper-api"), path: AnchoredSystemPathBuf("server") }}))
+2025-02-01T21:06:00.905468Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("server\\node_modules")}
+2025-02-01T21:06:00.905485Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("fandomscraper-api"), path: AnchoredSystemPathBuf("server") }}))
+2025-02-01T21:06:01.013101Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-02-01T21:06:01.013264Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules")}
+2025-02-01T21:06:01.013271Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-02-01T21:06:01.396752Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("server"), AnchoredSystemPathBuf("server\\package.json"), AnchoredSystemPathBuf("server\\package.json.2027448697")}
+2025-02-01T21:06:01.396768Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("fandomscraper-api"), path: AnchoredSystemPathBuf("server") }}))

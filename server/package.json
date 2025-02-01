@@ -7,9 +7,9 @@
     "start": "node --experimental-specifier-resolution=node dist/app.js"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.7",
-    "fandomscraper": "^1.0.76",
-    "hono": "^4.6.19",
+    "@hono/node-server": "^1.13.8",
+    "fandomscraper": "^1.0.77",
+    "hono": "^4.6.20",
     "zod": "^3.24.1"
   },
   "devDependencies": {
