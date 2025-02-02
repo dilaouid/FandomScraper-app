@@ -8,6 +8,7 @@ import SearchBar from '@/components/molecules/SearchBar.vue'
 import FilterOptions from '@/components/molecules/FilterOptions.vue'
 import Pagination from '@/components/molecules/Pagination.vue'
 import BackButton from '@/components/atoms/BackButton.vue'
+import WikiMetadata from '@/components/molecules/WikiMetadata.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -43,8 +44,8 @@ const handleFieldsChange = (fields: string[]) => {
             <div class="fixed inset-0 bg-gradient-to-br from-red-950 to-black overflow-hidden">
                 <!-- Matrix rain effect -->
                 <div class="matrix-rain" aria-hidden="true">
-                    <div v-for="n in 60" :key="n" class="matrix-column" 
-                         :style="{ left: `${(n - 1) * 1.67}%`, animationDelay: `-${Math.random() * 10}s` }">
+                    <div v-for="n in 60" :key="n" class="matrix-column"
+                        :style="{ left: `${(n - 1) * 1.67}%`, animationDelay: `-${Math.random() * 10}s` }">
                         働 き す ぎ て 死 ぬ な 今 日 も 頑 張 ろ う
                     </div>
                 </div>
@@ -64,7 +65,9 @@ const handleFieldsChange = (fields: string[]) => {
                 <div class="absolute inset-0 bg-gradient-to-r from-[#1a0f0f] via-transparent to-[#1a0f0f]" />
 
                 <!-- Blur pattern -->
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,0,0,0.3),rgba(0,0,0,0.6))]"></div>
+                <div
+                    class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,0,0,0.3),rgba(0,0,0,0.6))]">
+                </div>
                 <div class="absolute inset-0 backdrop-blur-[100px]"></div>
             </div>
         </template>
@@ -75,49 +78,32 @@ const handleFieldsChange = (fields: string[]) => {
                 <div class="flex flex-wrap gap-4 items-center justify-between mb-6">
                     <div class="flex items-center gap-4">
                         <BackButton to="/" />
-                        <div>
-                            <h1 class="text-3xl font-bold text-white">
-                                {{ wikiName.charAt(0).toUpperCase() + wikiName.slice(1) }}
-                            </h1>
-                            <p class="text-white/70 mt-1">
-                                {{ totalCount }} Personnages disponibles
-                            </p>
-                        </div>
+                        <WikiMetadata :wiki-name="wikiName" :character-count="totalCount" />
                     </div>
                 </div>
 
                 <!-- Search and Filters -->
                 <div class="flex flex-wrap gap-4 items-center justify-between">
-                    <SearchBar 
-                        v-model="searchTerm" 
-                        @search="setSearch" 
-                        placeholder="Rechercher par nom ou ID..." 
-                        class="flex-1 min-w-[300px]"
-                    />
-                    <FilterOptions 
-                        v-model="selectedFields"
-                        @update:modelValue="handleFieldsChange"
-                    />
+                    <SearchBar v-model="searchTerm" @search="setSearch" placeholder="Rechercher par nom ou ID..."
+                        class="flex-1 min-w-[300px]" />
+                    <FilterOptions v-model="selectedFields" :wiki-name="wikiName"
+                        @update:modelValue="handleFieldsChange" />
                 </div>
             </div>
 
             <!-- Content -->
             <div class="relative">
                 <!-- Loading overlay -->
-                <div v-if="isLoading" 
-                     class="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-10">
+                <div v-if="isLoading" class="absolute inset-0 backdrop-blur-sm flex items-center justify-center z-10">
                     <div class="text-white text-center">
                         <div class="loading-spinner mb-4"></div>
                         <p>Chargement des personnages...</p>
                     </div>
                 </div>
 
-                <CharacterGrid
-                    :characters="characters || []"
-                    :loading="isLoading"
-                    :error="isError"
-                    @card-click="handleCardClick"
-                />
+                <CharacterGrid :characters="characters || []" :loading="isLoading" :error="isError"
+                    @card-click="handleCardClick" 
+                    :wiki-name="wikiName" />
             </div>
 
             <!-- Footer with Pagination -->
@@ -126,12 +112,8 @@ const handleFieldsChange = (fields: string[]) => {
                     <div class="text-white/70">
                         Page {{ currentPage }} sur {{ totalPages }}
                     </div>
-                    <Pagination
-                        v-if="!isLoading && !isError && totalPages > 0"
-                        :current-page="currentPage"
-                        :total-pages="totalPages"
-                        @change="setPage"
-                    />
+                    <Pagination v-if="!isLoading && !isError && totalPages > 0" :current-page="currentPage"
+                        :total-pages="totalPages" @change="setPage" />
                 </div>
             </div>
         </div>
@@ -145,20 +127,16 @@ const handleFieldsChange = (fields: string[]) => {
     z-index: 1;
     overflow: hidden;
     opacity: 0.08;
-    mask-image: linear-gradient(
-        to bottom,
-        transparent,
-        black 15%,
-        black 85%,
-        transparent
-    );
-    -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent,
-        black 15%,
-        black 85%,
-        transparent
-    );
+    mask-image: linear-gradient(to bottom,
+            transparent,
+            black 15%,
+            black 85%,
+            transparent);
+    -webkit-mask-image: linear-gradient(to bottom,
+            transparent,
+            black 15%,
+            black 85%,
+            transparent);
 }
 
 .cloud-container {
@@ -196,8 +174,13 @@ const handleFieldsChange = (fields: string[]) => {
 }
 
 @keyframes cloudFloat {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100vw); }
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100vw);
+    }
 }
 
 /* Loading spinner */
@@ -212,12 +195,17 @@ const handleFieldsChange = (fields: string[]) => {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .bg-pattern {
-    background-image: 
+    background-image:
         linear-gradient(45deg, #ff000015 25%, transparent 25%),
         linear-gradient(-45deg, #ff000015 25%, transparent 25%),
         linear-gradient(45deg, transparent 75%, #ff000015 75%),

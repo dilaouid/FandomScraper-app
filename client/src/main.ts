@@ -3,7 +3,7 @@ import { createPinia } from 'pinia'
 import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query'
 import App from './App.vue'
 import router from './router'
-import './styles/globals.css'
+import './styles/globals.css?v=1'
 
 const queryClient = new QueryClient({
   defaultOptions: {

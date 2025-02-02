@@ -1,17 +1,21 @@
+<!-- FilterOptions.vue -->
 <script setup lang="ts">
-const props = defineProps<{
-    modelValue: string[]
-}>()
+import { useWikiStore } from '@/stores/useWikIStore';
+import { computed } from 'vue'
+
+interface Props {
+    modelValue: string[];
+    wikiName: string;
+}
+
+const props = defineProps<Props>()
+const store = useWikiStore()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: string[]): void
+    (e: 'update:modelValue', value: string[]): void;
 }>()
 
-const options = [
-    { id: 'status', label: 'Status', icon: '🎯' },
-    { id: 'gender', label: 'Genre', icon: '👤' },
-    { id: 'kanji', label: 'Kanji', icon: '漢' }
-]
+const availableFilters = computed(() => store.getWikiFilters(props.wikiName))
 
 const toggleOption = (optionId: string) => {
     const newValue = [...props.modelValue]
@@ -27,16 +31,20 @@ const toggleOption = (optionId: string) => {
 }
 </script>
 
+
 <template>
     <div class="flex gap-3">
-        <button v-for="option in options" :key="option.id" @click="toggleOption(option.id)"
-            class="px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2" :class="[
-                modelValue.includes(option.id)
-                    ? 'bg-red-500/30 text-white ring-2 ring-red-500/50'
-                    : 'bg-red-950/20 text-white/70 hover:bg-red-900/30 hover:text-white'
-            ]">
-            <span class="text-lg">{{ option.icon }}</span>
-            {{ option.label }}
+        <button v-for="filter in availableFilters" 
+                :key="filter.id" 
+                @click="toggleOption(filter.id)"
+                class="px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2" 
+                :class="[
+                    modelValue.includes(filter.id)
+                        ? 'bg-red-500/30 text-white ring-2 ring-red-500/50'
+                        : 'bg-red-950/20 text-white/70 hover:bg-red-900/30 hover:text-white'
+                ]">
+            <span class="text-lg">{{ filter.icon }}</span>
+            {{ filter.label }}
         </button>
     </div>
 </template>

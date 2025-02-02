@@ -1,13 +1,18 @@
-// src/composables/useCharacters.ts
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { ref, computed, watch } from 'vue'
+import { useFiltersStore } from '@/stores/useFiltersStore'
 
 const PER_PAGE = 12
 
 export function useCharacters(wikiName: string) {
     const currentPage = ref(1)
     const searchTerm = ref('')
-    const selectedFields = ref<string[]>(['images'])
+    const filtersStore = useFiltersStore()
+    const selectedFields = computed({
+        get: () => filtersStore.getSelectedFields(wikiName),
+        set: (value) => filtersStore.setSelectedFields(wikiName, value)
+    })
+
     const queryClient = useQueryClient()
 
     // Query pour le count total
@@ -40,9 +45,7 @@ export function useCharacters(wikiName: string) {
             }
 
             const response = await fetch(`http://localhost:3000/${wikiName}/characters?${params}`)
-            const data = await response.json()
-            console.log('Characters data:', data);
-            
+            const data = await response.json()            
             
             return data
         },
@@ -89,7 +92,7 @@ export function useCharacters(wikiName: string) {
     }
 
     const setFields = (fields: string[]) => {
-        selectedFields.value = fields
+        filtersStore.setSelectedFields(wikiName, fields)
         queryClient.invalidateQueries({
             queryKey: ['characters', wikiName]
         })

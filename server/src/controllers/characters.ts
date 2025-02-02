@@ -2,13 +2,16 @@ import { type Context } from 'hono'
 import type { PersonalScraperOptions, ScraperOptions } from '../types'
 import { personalScraper, scraper } from '../services/scraper.service'
 import { TAvailableWikis } from 'fandomscraper'
+import { cache } from '../services/cache.service'
 
 export const handlers = {
     // GET /:wiki/characters
     findAll: async (c: Context) => {
         const wiki = c.req.param('wiki') as TAvailableWikis
         const query = c.req.query()
-        
+        const ignore = query.ignore?.split(',') || []
+        ignore.push("User:Joaquim7210")
+
         const options: Partial<ScraperOptions> = {
             base64: query.base64 === 'true',
             limit: Number(query.limit) || 100,
@@ -17,10 +20,17 @@ export const handlers = {
             arrayFields: query.arrayFields?.split(','),
             withId: query.withId === 'true',
             recursive: query.recursive === 'true',
-            ignore: query.ignore?.split(',')
+            ignore
+        };
+        const cacheKey = cache.createCacheKey(`findAll:${wiki}`, query);
+
+        const cached = cache.get<any>(cacheKey);
+        if (cached) {
+            return c.json(cached);
         }
 
         const characters = await scraper.findAll(wiki, options)
+        cache.set(cacheKey, characters, 900000);
         return c.json(characters)
     },
 
@@ -29,7 +39,7 @@ export const handlers = {
     findByName: async (c: Context) => {
         const { wiki, name } = c.req.param() as { wiki: TAvailableWikis, name: string }
         const query = c.req.query()
-        
+
         const options: Partial<ScraperOptions> = {
             base64: query.base64 === 'true',
             fields: query.fields?.split(','),
@@ -37,7 +47,7 @@ export const handlers = {
             withId: query.withId === 'true',
             recursive: query.recursive === 'true'
         }
-        
+
         const character = await scraper.findByName(wiki, name, options)
         return character ? c.json(character) : c.notFound()
     },
@@ -63,7 +73,7 @@ export const handlers = {
         const { withCount = 'false' } = c.req.query()
 
         const metadata = await scraper.getMetadata(wiki, {
-            withCount: withCount === 'true'
+            withCount: withCount === 'true',
         })
 
         return c.json(metadata)
@@ -86,7 +96,7 @@ export const handlers = {
     findAllPersonal: async (c: Context) => {
         const schema = await c.req.json()
         const query = c.req.query()
-        
+
         const options: Partial<PersonalScraperOptions> = {
             base64: query.base64 === 'true',
             limit: Number(query.limit) || 100,
@@ -107,7 +117,7 @@ export const handlers = {
         const { name } = c.req.param()
         const schema = await c.req.json()
         const query = c.req.query()
-        
+
         const options: Partial<PersonalScraperOptions> = {
             base64: query.base64 === 'true',
             fields: query.fields?.split(','),
@@ -125,7 +135,7 @@ export const handlers = {
         const { id } = c.req.param()
         const schema = await c.req.json()
         const query = c.req.query()
-        
+
         const options: Partial<PersonalScraperOptions> = {
             base64: query.base64 === 'true',
             fields: query.fields?.split(','),

@@ -22,9 +22,4 @@ const router = createRouter({
     routes,
 })
 
-router.beforeEach((to, from, next) => {
-    console.log('Navigation to:', to.path)
-    next()
-});
-
 export default router
