@@ -29,7 +29,10 @@ export const handlers = {
             return c.json(cached);
         }
 
-        const characters = await scraper.findAll(wiki, options)
+        const characters = await scraper.findAll(wiki, { 
+            ...options,
+            lang: query.lang as 'en' | 'fr' 
+        });
         cache.set(cacheKey, characters, 900000);
         return c.json(characters)
     },
@@ -74,6 +77,7 @@ export const handlers = {
 
         const metadata = await scraper.getMetadata(wiki, {
             withCount: withCount === 'true',
+            lang: c.req.query().lang as 'en' | 'fr'
         })
 
         return c.json(metadata)
@@ -81,8 +85,11 @@ export const handlers = {
 
     // GET /:wiki/count
     getCount: async (c: Context) => {
+        const query = c.req.query()
         const wiki = c.req.param('wiki') as TAvailableWikis
-        const count = await scraper.getCount(wiki)
+        const count = await scraper.getCount(wiki, {
+            lang: query.lang as 'en' | 'fr' 
+        });        
         return c.json({ count })
     },
 
