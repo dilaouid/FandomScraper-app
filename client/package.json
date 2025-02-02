@@ -12,6 +12,7 @@
     "@radix-ui/colors": "^3.0.0",
     "@tanstack/vue-query": "^5.65.0",
     "@vueuse/core": "^12.5.0",
+    "country-flag-emoji-polyfill": "^0.1.8",
     "lodash": "^4.17.21",
     "lucide-vue-next": "^0.474.0",
     "pinia": "^2.3.1",

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCharacters } from '@/composables/useCharacters'
 import PageLayout from '@/components/templates/PageLayout.vue'
@@ -94,16 +93,29 @@ const handleFieldsChange = (fields: string[]) => {
             <!-- Content -->
             <div class="relative">
                 <!-- Loading overlay -->
-                <div v-if="isLoading" class="absolute inset-0 backdrop-blur-sm flex items-center justify-center z-10">
-                    <div class="text-white text-center">
-                        <div class="loading-spinner mb-4"></div>
-                        <p>Chargement des personnages...</p>
+                <div v-if="isLoading"
+                    class="absolute inset-0 flex items-center justify-center z-50 backdrop-blur-sm">
+                    <!-- Fenêtre modale glossy -->
+                    <div
+                        class="p-6 max-w-sm w-full rounded-xl border border-white/20 bg-gradient-to-br from-white/20 to-white/10 shadow-xl backdrop-blur-lg relative overflow-hidden">
+                        <!-- Un léger overlay glossy -->
+                        <div class="absolute inset-0 bg-white/5 pointer-events-none"></div>
+
+                        <!-- Contenu centré -->
+                        <div class="relative flex flex-col items-center justify-center space-y-4">
+                            <!-- Spinner CSS -->
+                            <div class="w-12 h-12 border-4 border-t-transparent border-white rounded-full animate-spin">
+                            </div>
+                            <!-- Message -->
+                            <p class="text-white text-center text-sm font-medium">
+                                Chargement des personnages...
+                            </p>
+                        </div>
                     </div>
                 </div>
 
                 <CharacterGrid :characters="characters || []" :loading="isLoading" :error="isError"
-                    @card-click="handleCardClick" 
-                    :wiki-name="wikiName" />
+                    @card-click="handleCardClick" :wiki-name="wikiName" />
             </div>
 
             <!-- Footer with Pagination -->

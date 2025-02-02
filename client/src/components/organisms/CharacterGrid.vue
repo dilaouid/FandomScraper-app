@@ -14,6 +14,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'select', character: Character): void;
     (e: 'image-change', index: number): void;
+    (e: 'retry'): void;
 }>()
 const { selectedFields } = useCharacters(props.wikiName)
 

@@ -15,7 +15,7 @@ const filters = [
     { id: 'kanji', label: 'Kanji', icon: '漢' }
 ]
 
-const selectedFilters = computed(() => 
+const selectedFilters = computed(() =>
     filters.filter(filter => selectedFields.value.includes(filter.id))
 )
 
@@ -42,22 +42,25 @@ const showKanji = computed(() => selectedFields.value.includes('kanji'))
 
                 <!-- Badges status/genre - uniquement pour les filtres sélectionnés -->
                 <div class="absolute top-2 right-2 flex gap-2 z-10">
-                    <div v-for="filter in selectedFilters" :key="filter.id"
-                         class="character-badge bg-gradient-to-br from-red-900/20 to-red-950/10">
+                    <div v-for="filter in selectedFilters.slice(0, 2)" :key="filter.id"
+                        class="character-badge bg-gradient-to-br from-red-900/20 to-red-950/10">
                         <div class="shimmer absolute inset-0"></div>
                     </div>
                 </div>
 
                 <!-- Zone texte -->
-                <div class="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-red-950/30 via-black/5 to-transparent z-10">
+                <div class="absolute bottom-0 inset-x-0 p-4 z-10">
                     <!-- Nom -->
-                    <div class="h-6 w-2/3 rounded overflow-hidden bg-gradient-to-r from-red-900/20 to-red-950/10">
-                        <div class="shimmer absolute inset-0"></div>
+                    <div class="h-6 w-2/3 bg-gradient-to-r from-red-900/20 to-red-950/10">
+                        <div class="h-full w-full relative overflow-hidden">
+                            <div class="shimmer absolute inset-0"></div>
+                        </div>
                     </div>
                     <!-- Kanji - uniquement si sélectionné -->
-                    <div v-if="showKanji" 
-                         class="h-4 w-1/2 rounded mt-2 overflow-hidden bg-gradient-to-r from-red-900/20 to-red-950/10">
-                        <div class="shimmer absolute inset-0"></div>
+                    <div v-if="showKanji" class="h-4 w-1/2 mt-2 bg-gradient-to-r from-red-900/20 to-red-950/10">
+                        <div class="h-full w-full relative overflow-hidden">
+                            <div class="shimmer absolute inset-0"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -65,8 +68,8 @@ const showKanji = computed(() => selectedFields.value.includes('kanji'))
 
         <!-- Zone miniatures -->
         <div class="mt-2 flex justify-center gap-2">
-            <div v-for="n in 3" :key="n" 
-                 class="w-12 h-12 rounded-md overflow-hidden relative bg-gradient-to-br from-red-900/20 to-red-950/10">
+            <div v-for="n in 3" :key="n"
+                class="w-12 h-12 rounded-md overflow-hidden relative bg-gradient-to-br from-red-900/20 to-red-950/10">
                 <div class="shimmer absolute inset-0"></div>
             </div>
         </div>
@@ -93,7 +96,7 @@ const showKanji = computed(() => selectedFields.value.includes('kanji'))
 .card-skeleton {
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .shimmer {

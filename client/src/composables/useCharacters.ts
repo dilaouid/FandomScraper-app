@@ -1,19 +1,48 @@
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { ref, computed, watch } from 'vue'
 import { useFiltersStore } from '@/stores/useFiltersStore'
+import { useRoute, useRouter } from 'vue-router'
 
 const PER_PAGE = 12
 
 export function useCharacters(wikiName: string) {
-    const currentPage = ref(1)
-    const searchTerm = ref('')
+    const route = useRoute()
+    const router = useRouter()
+
     const filtersStore = useFiltersStore()
     const selectedFields = computed({
         get: () => filtersStore.getSelectedFields(wikiName),
-        set: (value) => filtersStore.setSelectedFields(wikiName, value)
+        set: (value) => {
+            filtersStore.setSelectedFields(wikiName, value)
+        }
     })
 
     const queryClient = useQueryClient()
+
+    const currentPage = computed({
+        get: () => Number(route.query.page) || 1,
+        set: (value) => {
+            router.push({
+                query: {
+                    ...route.query,
+                    page: value.toString()
+                }
+            })
+        }
+    })
+
+    const searchTerm = computed({
+        get: () => route.query.search?.toString() || '',
+        set: (value) => {
+            router.push({
+                query: {
+                    ...route.query,
+                    search: value || undefined,
+                    page: '1'
+                }
+            })
+        }
+    })
 
     // Query pour le count total
     const totalCountQuery = useQuery({

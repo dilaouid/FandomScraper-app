@@ -166,7 +166,7 @@ const handleCardClick = () => {
 
         <!-- Badges de status et de genre -->
         <div class="absolute top-2 right-2 flex gap-2 pointer-events-none  z-20">
-          <span
+          <span v-if="character.data?.status"
             class="character-badge w-8 h-8 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm border border-white/10">
             {{ statusIcon }}
           </span>
