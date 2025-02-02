@@ -12,6 +12,7 @@
     "@radix-ui/colors": "^3.0.0",
     "@tanstack/vue-query": "^5.65.0",
     "@vueuse/core": "^12.5.0",
+    "lodash": "^4.17.21",
     "lucide-vue-next": "^0.474.0",
     "pinia": "^2.3.1",
     "radix-vue": "^1.9.13",
@@ -19,6 +20,7 @@
     "vue-router": "4"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.15",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "10",
