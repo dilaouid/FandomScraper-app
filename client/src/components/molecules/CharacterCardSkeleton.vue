@@ -82,7 +82,12 @@ const showKanji = computed(() => selectedFields.value.includes('kanji'))
 }
 
 .character-badge {
-    @apply w-8 h-8 rounded-full border border-white/10 relative overflow-hidden;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
 }
 
 .card-skeleton {
