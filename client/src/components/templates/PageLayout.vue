@@ -1,27 +1,23 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import AppFooter from '../organisms/AppFooter.vue';
 
-const router = useRouter()
 </script>
 
 <template>
-    <div class="relative min-h-screen overflow-hidden">
+    <div class="min-h-screen h-full flex flex-col bg-[#1a0f0f]">
         <!-- Background slot -->
-        <slot name="background" />
+        <div class="fixed inset-0 w-full h-full">
+            <slot name="background" />
+        </div>
 
         <!-- Header/Navigation -->
-        <header class="relative z-10">
-            <!-- <nav class="container mx-auto px-4 py-6">
-                <button v-if="router.currentRoute.value.path !== '/'" @click="router.back()"
-                    class="text-white hover:text-white/80 transition-colors">
-                    ← Retour
-                </button>
-            </nav> -->
-        </header>
+        <div class="relative flex flex-col min-h-screen">
+            <main class="relative z-10 flex-grow flex flex-col">
+                <slot />
+            </main>
 
-        <!-- Main content -->
-        <main class="relative z-10">
-            <slot />
-        </main>
+            <!-- Footer -->
+            <AppFooter class="relative z-10 mt-auto" />
+        </div>
     </div>
 </template>
