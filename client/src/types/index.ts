@@ -35,3 +35,17 @@ export interface QueryParams {
     arrayFields?: ArrayFields[]
 }
 
+export interface CharactersResponse {
+    data: Character[];
+    total: number;
+}
+
+export interface CharacterQueryParams {
+    limit?: number;
+    offset?: number;
+    fields?: string[];
+    arrayFields?: string[];
+    withId?: boolean;
+    recursive?: boolean;
+    ignore?: string[];
+}
