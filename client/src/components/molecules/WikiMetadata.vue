@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { Link } from 'lucide-vue-next'
 import { useWikiMetadata } from '@/composables/useWikiMetadata'
-import { computed, watch } from 'vue';
-import { useWikiStore } from '@/stores/useWikIStore';
 interface Props {
     wikiName: string;
-    characterCount?: number;
 }
 
 const props = defineProps<Props>()
-const store = useWikiStore()
 const { data: metadata } = useWikiMetadata(props.wikiName)
 
 const formatWikiName = (name: string) => {
@@ -26,15 +22,6 @@ const getLanguageFlag = (lang: string) => {
     }
     return flags[lang] || lang.toUpperCase()
 }
-
-// Mise à jour du store quand les métadonnées changent
-watch(() => metadata.value, (newMetadata) => {
-    if (newMetadata) {        
-        store.setWikiMetadata(props.wikiName, newMetadata)
-    }
-}, { immediate: true })
-const storeMetadata = computed(() => store.getWikiMetadata(props.wikiName))
-
 </script>
 
 <template>
@@ -44,7 +31,7 @@ const storeMetadata = computed(() => store.getWikiMetadata(props.wikiName))
                 {{ formatWikiName(wikiName) }}
             </h1>
 
-            <a v-if="metadata" :href="`https://${metadata.language}.wikipedia.org/wiki/${wikiName}`" target="_blank"
+            <a v-if="metadata" :href="`${metadata.url}`" target="_blank"
                 class="text-white/70 hover:text-white transition-colors" title="Visit Wiki">
                 <Link class="w-5 h-5" />
             </a>
@@ -60,11 +47,11 @@ const storeMetadata = computed(() => store.getWikiMetadata(props.wikiName))
         </div>
 
         <div class="text-white/70 mt-1 flex gap-4">
-            <p v-if="characterCount !== undefined">
-                {{ characterCount }} personnages disponibles
+            <p v-if="metadata?.count">
+                {{ metadata.count }} personnages disponibles
             </p>
             <template v-if="metadata?.availableLanguages?.length">
-                <span v-if="characterCount !== undefined">•</span>
+                <span v-if="metadata?.count">•</span>
                 <p>
                     {{ metadata.availableLanguages.length }} langue{{ metadata.availableLanguages.length > 1 ? 's' : ''
                     }} disponible{{ metadata.availableLanguages.length > 1 ? 's' : '' }}

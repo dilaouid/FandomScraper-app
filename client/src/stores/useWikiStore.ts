@@ -6,6 +6,8 @@ export interface WikiMetadata {
     attributes: string[];
     language: string;
     availableLanguages: string[];
+    count: number;
+    url: string;
 }
 
 export const useWikiStore = defineStore('wiki', () => {

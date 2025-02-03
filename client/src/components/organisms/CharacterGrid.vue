@@ -12,11 +12,13 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (e: 'select', character: Character): void;
-    (e: 'image-change', index: number): void;
+    (e: 'card-click', id: number): void;
     (e: 'retry'): void;
 }>()
 const { selectedFields } = useCharacters(props.wikiName)
+const handleSelect = (id: number) => {
+    emit('card-click', id)
+}
 
 const SKELETON_COUNT = 12;
 </script>
@@ -44,7 +46,7 @@ const SKELETON_COUNT = 12;
 
         <template v-else>
             <CharacterCard v-for="character in characters" :key="character.id" :character="character"
-                @select="emit('card-click', $event)" />
+            @select="handleSelect" />
         </template>
     </div>
 </template>

@@ -2,22 +2,24 @@ import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { ref, computed, watch } from 'vue'
 import { useFiltersStore } from '@/stores/useFiltersStore'
 import { useRoute, useRouter } from 'vue-router'
+import { useWikiMetadata } from '@/composables/useWikiMetadata'
+
 
 const PER_PAGE = 12
 
 export function useCharacters(wikiName: string) {
     const route = useRoute()
     const router = useRouter()
-
     const filtersStore = useFiltersStore()
+    const queryClient = useQueryClient()
+    const { data: metadata } = useWikiMetadata(wikiName)
+
     const selectedFields = computed({
         get: () => filtersStore.getSelectedFields(wikiName),
         set: (value) => {
             filtersStore.setSelectedFields(wikiName, value)
         }
     })
-
-    const queryClient = useQueryClient()
 
     const currentPage = computed({
         get: () => Number(route.query.page) || 1,
@@ -45,14 +47,7 @@ export function useCharacters(wikiName: string) {
     })
 
     // Query pour le count total
-    const totalCountQuery = useQuery({
-        queryKey: ['characters-count', wikiName],
-        queryFn: async () => {
-            const response = await fetch(`http://localhost:3000/${wikiName}/count`)
-            const data = await response.json()
-            return data.count
-        }
-    })
+    const totalCount = computed(() => metadata.value?.count || 0)
 
     // Query pour les personnages avec pagination
     const charactersQuery = useQuery({
@@ -83,7 +78,7 @@ export function useCharacters(wikiName: string) {
 
     // Préchargement de la page suivante
     const prefetchNextPage = async () => {
-        if (currentPage.value * PER_PAGE < (totalCountQuery.data?.value || 0)) {
+        if (currentPage.value * PER_PAGE < totalCount.value) {
             const nextPage = currentPage.value + 1
             await queryClient.prefetchQuery({
                 queryKey: ['characters', wikiName, nextPage, searchTerm],
@@ -92,7 +87,7 @@ export function useCharacters(wikiName: string) {
                         recursive: 'true',
                         limit: PER_PAGE.toString(),
                         offset: ((nextPage - 1) * PER_PAGE).toString(),
-                        fields: 'images,status,gender,kanji',
+                        fields: selectedFields.value.join(','),
                         withId: 'true'
                     })
 
@@ -122,15 +117,20 @@ export function useCharacters(wikiName: string) {
 
     const setFields = (fields: string[]) => {
         filtersStore.setSelectedFields(wikiName, fields)
+        router.push({
+            query: {
+                ...route.query,
+                page: '1'
+            }
+        })
         queryClient.invalidateQueries({
             queryKey: ['characters', wikiName]
         })
     }
 
-
     const totalPages = computed(() => {
-        if (!totalCountQuery.data?.value) return 0
-        return Math.ceil(totalCountQuery.data.value / PER_PAGE)
+        if (!totalCount.value) return 0
+        return Math.ceil(totalCount.value / PER_PAGE)
     })
 
     return {
@@ -145,6 +145,6 @@ export function useCharacters(wikiName: string) {
         setSearch,
         selectedFields,
         setFields,
-        totalCount: totalCountQuery.data
+        totalCount
     }
 }

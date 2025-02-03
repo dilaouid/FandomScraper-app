@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
+import { useQueryClient } from '@tanstack/vue-query'
 import { useCharacters } from '@/composables/useCharacters'
 import PageLayout from '@/components/templates/PageLayout.vue'
+
 import CharacterGrid from '@/components/organisms/CharacterGrid.vue'
 import SearchBar from '@/components/molecules/SearchBar.vue'
 import FilterOptions from '@/components/molecules/FilterOptions.vue'
@@ -12,6 +14,7 @@ import WikiMetadata from '@/components/molecules/WikiMetadata.vue'
 const route = useRoute()
 const router = useRouter()
 const wikiName = route.params.wiki as string
+const queryClient = useQueryClient()
 
 const {
     characters,
@@ -93,12 +96,9 @@ const handleFieldsChange = (fields: string[]) => {
             <!-- Content -->
             <div class="relative">
                 <!-- Loading overlay -->
-                <div v-if="isLoading"
-                    class="absolute inset-0 flex items-center justify-center z-50 backdrop-blur-sm">
-                    <!-- Fenêtre modale glossy -->
+                <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center z-50 backdrop-blur-sm">
                     <div
                         class="p-6 max-w-sm w-full rounded-xl border border-white/20 bg-gradient-to-br from-white/20 to-white/10 shadow-xl backdrop-blur-lg relative overflow-hidden">
-                        <!-- Un léger overlay glossy -->
                         <div class="absolute inset-0 bg-white/5 pointer-events-none"></div>
 
                         <!-- Contenu centré -->
@@ -106,7 +106,6 @@ const handleFieldsChange = (fields: string[]) => {
                             <!-- Spinner CSS -->
                             <div class="w-12 h-12 border-4 border-t-transparent border-white rounded-full animate-spin">
                             </div>
-                            <!-- Message -->
                             <p class="text-white text-center text-sm font-medium">
                                 Chargement des personnages...
                             </p>
@@ -115,7 +114,8 @@ const handleFieldsChange = (fields: string[]) => {
                 </div>
 
                 <CharacterGrid :characters="characters || []" :loading="isLoading" :error="isError"
-                    @card-click="handleCardClick" :wiki-name="wikiName" />
+                    @card-click="handleCardClick" :wiki-name="wikiName"
+                    @retry="() => queryClient.invalidateQueries({ queryKey: ['characters', wikiName] })" />
             </div>
 
             <!-- Footer with Pagination -->
