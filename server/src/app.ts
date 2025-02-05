@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
-import { characterRoutes } from './routes/router'
+import { router } from './routes/router'
 import { cors } from 'hono/cors'
 // import { errorHandler } from './middleware/error'
 
@@ -12,7 +12,7 @@ app.use(cors({
 }))
 
 // app.onError(errorHandler)
-app.route('/', characterRoutes)
+app.route('/', router)
 
 serve(app, () => {
   console.log('Server running on http://localhost:3000')

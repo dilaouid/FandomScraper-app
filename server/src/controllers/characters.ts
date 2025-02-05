@@ -1,11 +1,11 @@
-import { type Context } from 'hono'
-import type { PersonalScraperOptions, ScraperOptions } from '../types'
-import { personalScraper, scraper } from '../services/scraper.service'
-import { TAvailableWikis } from 'fandomscraper'
-import { cache } from '../services/cache.service'
+import type { Context } from "hono"
+import type { TAvailableWikis } from "fandomscraper"
+import type { PersonalScraperOptions, ScraperOptions } from "../types"
 
-export const handlers = {
-    // GET /:wiki/characters
+import { personalScraper, scraper } from "../services/scraper.service"
+import { cache } from "../services/cache.service"
+
+export const characterController = {
     findAll: async (c: Context) => {
         const wiki = c.req.param('wiki') as TAvailableWikis
         const query = c.req.query()
@@ -29,9 +29,9 @@ export const handlers = {
             return c.json(cached);
         }
 
-        const characters = await scraper.findAll(wiki, { 
+        const characters = await scraper.findAll(wiki, {
             ...options,
-            lang: query.lang as 'en' | 'fr' 
+            lang: query.lang as 'en' | 'fr'
         });
         cache.set(cacheKey, characters, 900000);
         return c.json(characters)
@@ -88,8 +88,8 @@ export const handlers = {
         const query = c.req.query()
         const wiki = c.req.param('wiki') as TAvailableWikis
         const count = await scraper.getCount(wiki, {
-            lang: query.lang as 'en' | 'fr' 
-        });        
+            lang: query.lang as 'en' | 'fr'
+        });
         return c.json({ count })
     },
 
