@@ -12,7 +12,7 @@ export interface WikiMetadata {
 
 export const useWikiStore = defineStore('wiki', () => {
     const wikisMetadata = ref<Record<string, WikiMetadata>>({})
-    const currentLanguage = ref<string>('fr')
+    const currentLanguage = ref<string>('en')
 
     const setWikiMetadata = (wikiName: string, metadata: WikiMetadata) => {
         wikisMetadata.value[wikiName] = metadata
