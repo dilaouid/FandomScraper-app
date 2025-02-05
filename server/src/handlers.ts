@@ -1,5 +1,5 @@
 import { characterController } from "./controllers/characters";
-import { proxyController } from "./controllers/image";
+import { proxyController } from "./controllers/proxy";
 
 export const handlers = {
     ...characterController,
