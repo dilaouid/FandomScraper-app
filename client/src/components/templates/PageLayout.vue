@@ -12,7 +12,7 @@ import AppFooter from '../organisms/AppFooter.vue';
 
         <!-- Header/Navigation -->
         <div class="relative flex flex-col min-h-screen">
-            <main class="relative z-10 flex-grow flex flex-col">
+            <main class="relative z-10 flex-grow flex flex-col pb-12">
                 <slot />
             </main>
 
