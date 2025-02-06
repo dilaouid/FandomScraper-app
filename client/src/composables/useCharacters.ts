@@ -1,5 +1,5 @@
+import { computed, watch } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { ref, computed, watch } from 'vue'
 import { useFiltersStore } from '@/stores/useFiltersStore'
 import { useRoute, useRouter } from 'vue-router'
 import { useWikiMetadata } from '@/composables/useWikiMetadata'
@@ -13,6 +13,7 @@ export function useCharacters(wikiName: string) {
     const filtersStore = useFiltersStore()
     const queryClient = useQueryClient()
     const { data: metadata } = useWikiMetadata(wikiName)
+    const lang = computed(() => route.query.lang?.toString() || 'en')
 
     const selectedFields = computed({
         get: () => filtersStore.getSelectedFields(wikiName),
@@ -51,57 +52,32 @@ export function useCharacters(wikiName: string) {
 
     // Query pour les personnages avec pagination
     const charactersQuery = useQuery({
-        queryKey: ['characters', wikiName, currentPage, searchTerm, selectedFields],
+        queryKey: ['characters', wikiName, currentPage, searchTerm, selectedFields, lang.value],
         queryFn: async () => {
             const fields = ['images', ...selectedFields.value]
             const uniqueFields = Array.from(new Set(fields))
-
             const params = new URLSearchParams({
                 recursive: 'true',
                 limit: PER_PAGE.toString(),
                 offset: ((currentPage.value - 1) * PER_PAGE).toString(),
                 fields: uniqueFields.join(','),
-                withId: 'true'
+                withId: 'true',
+                lang: lang.value
             })
-
             if (searchTerm.value) {
                 params.append('search', searchTerm.value)
             }
-
             const response = await fetch(`http://localhost:3000/${wikiName}/characters?${params}`)
-            const data = await response.json()            
-            
+            const data = await response.json()
             return data
         },
-        staleTime: Infinity
+        gcTime: Infinity,
+        staleTime: 50000,
+        structuralSharing: true
     })
 
-    // Préchargement de la page suivante
-    const prefetchNextPage = async () => {
-        if (currentPage.value * PER_PAGE < totalCount.value) {
-            const nextPage = currentPage.value + 1
-            await queryClient.prefetchQuery({
-                queryKey: ['characters', wikiName, nextPage, searchTerm],
-                queryFn: async () => {
-                    const params = new URLSearchParams({
-                        recursive: 'true',
-                        limit: PER_PAGE.toString(),
-                        offset: ((nextPage - 1) * PER_PAGE).toString(),
-                        fields: selectedFields.value.join(','),
-                        withId: 'true'
-                    })
+    const isCharactersLoading = computed(() => charactersQuery.isLoading || charactersQuery.isFetching)
 
-                    if (searchTerm.value) {
-                        params.append('search', searchTerm.value)
-                    }
-
-                    const response = await fetch(`http://localhost:3000/${wikiName}/characters?${params}`)
-                    return response.json()
-                }
-            })
-        }
-    }
-    
     watch([searchTerm], () => {
         currentPage.value = 1
     })
@@ -119,8 +95,7 @@ export function useCharacters(wikiName: string) {
         filtersStore.setSelectedFields(wikiName, fields)
         router.push({
             query: {
-                ...route.query,
-                page: '1'
+                ...route.query
             }
         })
         queryClient.invalidateQueries({
@@ -135,7 +110,7 @@ export function useCharacters(wikiName: string) {
 
     return {
         characters: charactersQuery.data,
-        isLoading: charactersQuery.isLoading,
+        isLoading: isCharactersLoading,
         isError: charactersQuery.isError,
         error: charactersQuery.error,
         currentPage,

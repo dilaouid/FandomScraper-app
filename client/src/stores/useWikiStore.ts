@@ -47,6 +47,12 @@ export const useWikiStore = defineStore('wiki', () => {
         return available
     })
 
+    const getBaseUrl = (url: string): string => {
+        const match = url.match(/^https?:\/\/[^\/]+/)
+        return match ? match[0] : ''
+    }
+ 
+
     return {
         wikisMetadata,
         currentLanguage,
@@ -55,6 +61,7 @@ export const useWikiStore = defineStore('wiki', () => {
         getWikiMetadata,
         setLanguage,
         setLanguageSwitching,
-        getWikiFilters
+        getWikiFilters,
+        getBaseUrl
     }
 })

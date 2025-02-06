@@ -1,23 +1,121 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Character } from '@/types'
+import { useWikiStore } from '@/stores/useWikiStore';
+const apiUrl = import.meta.env.VITE_API_URL
 
 const props = defineProps<{
   character: Character
 }>()
+
 const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgMjAwIDIwMCI+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiMxYTBmMGYiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4NSIgcj0iMzUiIGZpbGw9IiM0YjAwMDAiLz4KICA8cmVjdCB4PSI1MCIgeT0iMTMwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjQwIiByeD0iMjAiIGZpbGw9IiM0YjAwMDAiLz4KPC9zdmc+'
+
+const currentImageIndex = ref(0)
+const imageLoaded = ref(false)
+const isImageLoading = ref(true)
+const store = useWikiStore()
+
 
 const setImageIndex = (index: number) => {
   currentImageIndex.value = index
 }
 
-const currentImageIndex = ref(0)
+const getImageUrl = (url: string) => {
+  if (url.startsWith('data:')) return url
+  const referer = store.getBaseUrl(props.character.url)
 
-const displayImage = computed(() => {
-  const imageUrl = props.character.data?.images?.[currentImageIndex.value]
-  return imageUrl || placeholderImage
+  return `${apiUrl}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
+}
+
+/**
+ * Pour une URL donnée, on effectue une requête HEAD afin de vérifier
+ * si la ressource existe. En cas de code 404 ou d'erreur, on retourne
+ * l'URL proxy.
+ */
+const resolveImageUrl = async (url: string): Promise<string> => {
+  if (url.startsWith('data:')) return url
+  let finalUrl = url
+  try {
+    const response = await fetch(url, { method: 'HEAD' })
+    if (response.status === 404) {
+      finalUrl = getImageUrl(url)
+    }
+  } catch (error) {
+    finalUrl = getImageUrl(url)
+  }
+  return finalUrl
+}
+
+// --- Logique pour l'image principale ---
+const finalImageUrl = ref<string>(placeholderImage)
+
+const updateImage = async () => {
+  const baseUrl = props.character.data?.images?.[currentImageIndex.value]
+  if (!baseUrl) {
+    finalImageUrl.value = placeholderImage
+    isImageLoading.value = false
+    imageLoaded.value = false
+    return
+  }
+  if (baseUrl.startsWith('data:')) {
+    finalImageUrl.value = baseUrl
+    isImageLoading.value = false
+    imageLoaded.value = true
+    return
+  }
+  isImageLoading.value = true
+  imageLoaded.value = false
+
+  const resolvedUrl = await resolveImageUrl(baseUrl)
+  const img = new Image()
+  img.onload = () => {
+    isImageLoading.value = false
+    imageLoaded.value = true
+    finalImageUrl.value = resolvedUrl
+  }
+  img.onerror = () => {
+    isImageLoading.value = false
+    finalImageUrl.value = placeholderImage
+  }
+  img.src = resolvedUrl
+}
+
+watch(
+  [() => currentImageIndex.value, () => props.character.data?.images],
+  () => {
+    updateImage()
+  },
+  { immediate: true }
+)
+
+const displayImage = computed(() => finalImageUrl.value)
+
+
+// --- Logique de résolution pour les miniatures ---
+const resolvedThumbnails = ref(new Map<string, string>())
+
+watch(() => props.character.data?.images, (images) => {
+  if (images && images.length) {
+    images.forEach((imgUrl: string) => {
+      // On résout l'URL si ce n'est pas déjà fait
+      if (!resolvedThumbnails.value.has(imgUrl)) {
+        resolveImageUrl(imgUrl).then(resolved => {
+          resolvedThumbnails.value.set(imgUrl, resolved)
+        })
+      }
+    })
+  }
+}, { immediate: true })
+
+// Expose un tableau des URLs résolues pour les miniatures
+const resolvedThumbnailUrls = computed(() => {
+  return props.character.data?.images?.map((imgUrl: string) => {
+    return resolvedThumbnails.value.get(imgUrl) || imgUrl
+  }) || []
 })
 
+
+// --- Navigation entre images ---
 const nextImage = () => {
   if (!props.character.data?.images) return
   currentImageIndex.value = (currentImageIndex.value + 1) % props.character.data.images.length
@@ -30,12 +128,15 @@ const previousImage = () => {
     : currentImageIndex.value - 1
 }
 
-// Status icon
 const statusIcon = computed(() => {
   switch (props.character.data?.status?.toLowerCase()) {
     case 'deceased':
+    case 'décédé':
+    case 'décédée':
       return '💀'
     case 'alive':
+    case 'vivant':
+    case 'vivante':
     case 'active':
       return '❤️'
     default:
@@ -43,50 +144,19 @@ const statusIcon = computed(() => {
   }
 })
 
-// Gender icon
 const genderIcon = computed(() => {
+  console.log(props.character.data?.gender)
   switch (props.character.data?.gender?.toLowerCase()) {
     case 'male':
+    case 'masculin':
       return '♂️'
     case 'female':
+    case 'féminin':
       return '♀️'
     default:
       return ''
   }
 })
-
-const imageLoaded = ref(false)
-const isImageLoading = ref(true)
-
-const preloadImage = async (src: string) => {
-  if (!src) return
-  isImageLoading.value = true
-
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.src = src
-    img.onload = () => {
-      isImageLoading.value = false
-      imageLoaded.value = true
-      resolve(true)
-    }
-    img.onerror = reject
-  })
-}
-
-// Surveiller les changements d'image
-watch(() => displayImage.value, async (newSrc) => {
-  if (newSrc) {
-    isImageLoading.value = true
-    imageLoaded.value = false
-    try {
-      await preloadImage(newSrc)
-    } catch (error) {
-      console.error('Failed to load image:', error)
-      isImageLoading.value = false
-    }
-  }
-}, { immediate: true })
 
 let touchStartX = 0
 const touchThreshold = 50
@@ -97,10 +167,8 @@ const handleTouchStart = (event: TouchEvent) => {
 
 const handleTouchMove = (event: TouchEvent) => {
   if (!touchStartX) return
-
   const touchEndX = event.touches[0].clientX
   const diff = touchStartX - touchEndX
-
   if (Math.abs(diff) > touchThreshold) {
     if (diff > 0) {
       nextImage()
@@ -123,7 +191,6 @@ const emit = defineEmits<{
 const handleCardClick = () => {
   emit('select', props.character.id)
 }
-
 </script>
 
 <template>
@@ -150,7 +217,8 @@ const handleCardClick = () => {
               backgroundSize: 'cover',
               backgroundPosition: 'top center',
               backgroundRepeat: 'no-repeat'
-            }"></div>
+            }">
+          </div>
         </div>
 
         <!-- Overlay en bas avec le nom et, le cas échéant, le kanji -->
@@ -194,17 +262,19 @@ const handleCardClick = () => {
 
     <!-- Zone des miniatures en dehors de la zone cliquable -->
     <div class="mt-2 flex justify-center gap-2">
-      <div v-for="(_, index) in character.data?.images" :key="index" @click="setImageIndex(index)"
+      <div v-for="(image, index) in character.data?.images" :key="index" @click="setImageIndex(index)"
         class="w-12 h-12 rounded-md overflow-hidden border-2 transition-transform duration-300 cursor-pointer"
         :class="currentImageIndex === index ? 'border-red-500 scale-110' : 'border-transparent hover:border-red-500/50'"
         :style="{
-          backgroundImage: `url(${character.data?.images?.[index] || placeholderImage})`,
+          backgroundImage: `url(${resolvedThumbnailUrls[index]})`,
           backgroundSize: 'cover',
           backgroundPosition: 'top center'
-        }"></div>
+        }">
+      </div>
     </div>
   </div>
 </template>
+
 <style scoped>
 .image-navigation {
   pointer-events: auto;
@@ -286,7 +356,15 @@ const handleCardClick = () => {
 }
 
 .character-badge {
-  @apply w-8 h-8 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm border border-white/10;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: rgb(0 0 0 / 0.4);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgb(255 255 255 / 0.1);
   pointer-events: none;
 }
 

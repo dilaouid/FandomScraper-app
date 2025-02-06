@@ -1,26 +1,42 @@
 <script setup lang="ts">
 import { Link } from 'lucide-vue-next'
+import { useRoute, useRouter } from 'vue-router'
+import { useQueryClient } from '@tanstack/vue-query'
 import { useWikiMetadata } from '@/composables/useWikiMetadata'
+import { useWikiStore } from '@/stores/useWikiStore'
+import LanguageBadge from '../atoms/LanguageBadge.vue'
+
 interface Props {
     wikiName: string;
 }
 
 const props = defineProps<Props>()
+const store = useWikiStore()
+const queryClient = useQueryClient()
+const route = useRoute()
+const router = useRouter()
+
 const { data: metadata } = useWikiMetadata(props.wikiName)
 
-const formatWikiName = (name: string) => {
-    return name
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
-}
+const formatWikiName = (name: string) =>
+    name.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 
-const getLanguageFlag = (lang: string) => {
-    const flags: Record<string, string> = {
-        'fr': '🇫🇷',
-        'en': '🇬🇧'
-    }
-    return flags[lang] || lang.toUpperCase()
+const handleLanguageChange = async () => {
+    store.setLanguageSwitching(true)
+    const newLang = store.currentLanguage === 'fr' ? 'en' : 'fr'
+    store.setLanguage(newLang)
+    
+    await router.push({
+        query: {
+            ...route.query,
+            lang: newLang,
+        }
+    })
+    
+    await queryClient.invalidateQueries({ queryKey: ['wiki-metadata', props.wikiName] })
+    await queryClient.invalidateQueries({ queryKey: ['characters', props.wikiName] })
+    
+    store.setLanguageSwitching(false)
 }
 </script>
 
@@ -36,25 +52,19 @@ const getLanguageFlag = (lang: string) => {
                 <Link class="w-5 h-5" />
             </a>
 
-            <div v-if="metadata?.availableLanguages?.length"
-                class="flex items-center gap-2 px-4 py-1 bg-white/5 rounded-full">
-                <button v-for="lang in metadata.availableLanguages" :key="lang"
-                    class="text-xl opacity-70 hover:opacity-100 transition-opacity hover:scale-110 transform duration-200"
-                    :class="{ 'opacity-100': lang === metadata.language }" :title="`Switch to ${lang.toUpperCase()}`">
-                    {{ getLanguageFlag(lang) }}
-                </button>
-            </div>
+            <LanguageBadge v-if="(metadata?.availableLanguages?.length) as number > 1"
+                :current-lang="store.currentLanguage as 'en' | 'fr'" @click="handleLanguageChange" />
         </div>
 
         <div class="text-white/70 mt-1 flex gap-4">
             <p v-if="metadata?.count">
                 {{ metadata.count }} personnages disponibles
             </p>
-            <template v-if="metadata?.availableLanguages?.length">
-                <span v-if="metadata?.count">•</span>
+            <template v-if="(metadata?.availableLanguages?.length ?? 0) > 1">
+                <span v-if="metadata?.count && metadata">•</span>
                 <p>
-                    {{ metadata.availableLanguages.length }} langue{{ metadata.availableLanguages.length > 1 ? 's' : ''
-                    }} disponible{{ metadata.availableLanguages.length > 1 ? 's' : '' }}
+                    {{ metadata?.availableLanguages?.length ?? 0 }} langue{{ (metadata?.availableLanguages?.length ?? 0) > 1 ? 's' : ''
+                    }} disponible{{ (metadata?.availableLanguages?.length ?? 0) > 1 ? 's' : '' }}
                 </p>
             </template>
         </div>

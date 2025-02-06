@@ -1,6 +1,6 @@
 <!-- FilterOptions.vue -->
 <script setup lang="ts">
-import { useWikiStore } from '@/stores/useWikIStore';
+import { useWikiStore } from '@/stores/useWikiStore';
 import { computed } from 'vue'
 
 interface Props {

@@ -1,15 +1,18 @@
 <script setup lang="ts">
+import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useCharacters } from '@/composables/useCharacters'
-import PageLayout from '@/components/templates/PageLayout.vue'
+import { useWikiStore } from '@/stores/useWikiStore'
 
+import PageLayout from '@/components/templates/PageLayout.vue'
 import CharacterGrid from '@/components/organisms/CharacterGrid.vue'
 import SearchBar from '@/components/molecules/SearchBar.vue'
 import FilterOptions from '@/components/molecules/FilterOptions.vue'
 import Pagination from '@/components/molecules/Pagination.vue'
 import BackButton from '@/components/atoms/BackButton.vue'
 import WikiMetadata from '@/components/molecules/WikiMetadata.vue'
+import { useWikiMetadata } from '@/composables/useWikiMetadata'
 
 const route = useRoute()
 const router = useRouter()
@@ -17,18 +20,31 @@ const wikiName = route.params.wiki as string
 const queryClient = useQueryClient()
 
 const {
-    characters,
-    isLoading,
-    isError,
-    currentPage,
-    totalPages,
-    setPage,
-    searchTerm,
-    setSearch,
-    selectedFields,
-    setFields,
-    totalCount
+  characters,
+  isLoading,
+  isError,
+  currentPage,
+  totalPages,
+  setPage,
+  searchTerm,
+  setSearch,
+  selectedFields,
+  setFields,
+  totalCount
 } = useCharacters(wikiName)
+
+const { isLoading: isMetadataLoading } = useWikiMetadata(wikiName)
+const store = useWikiStore()
+
+const isPageLoading = computed(() =>
+  isLoading.value.value || isMetadataLoading.value || store.isLanguageSwitching
+)
+
+watch(isPageLoading, (newVal) => {
+    if (!newVal && store.isLanguageSwitching) {
+        store.setLanguageSwitching(false)
+    }
+})
 
 const handleCardClick = (characterId: number) => {
     router.push(`/${wikiName}/characters/${characterId}`)
@@ -96,7 +112,8 @@ const handleFieldsChange = (fields: string[]) => {
             <!-- Content -->
             <div class="relative">
                 <!-- Loading overlay -->
-                <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center z-50 backdrop-blur-sm">
+                <div v-if="isPageLoading"
+                    class="absolute inset-0 flex items-center justify-center z-50 backdrop-blur-sm">
                     <div
                         class="p-6 max-w-sm w-full rounded-xl border border-white/20 bg-gradient-to-br from-white/20 to-white/10 shadow-xl backdrop-blur-lg relative overflow-hidden">
                         <div class="absolute inset-0 bg-white/5 pointer-events-none"></div>
@@ -113,7 +130,7 @@ const handleFieldsChange = (fields: string[]) => {
                     </div>
                 </div>
 
-                <CharacterGrid :characters="characters || []" :loading="isLoading" :error="isError"
+                <CharacterGrid :characters="characters || []" :loading="isLoading.value" :error="isError"
                     @card-click="handleCardClick" :wiki-name="wikiName"
                     @retry="() => queryClient.invalidateQueries({ queryKey: ['characters', wikiName] })" />
             </div>
@@ -124,7 +141,7 @@ const handleFieldsChange = (fields: string[]) => {
                     <div class="text-white/70">
                         Page {{ currentPage }} sur {{ totalPages }}
                     </div>
-                    <Pagination v-if="!isLoading && !isError && totalPages > 0" :current-page="currentPage"
+                    <Pagination v-if="!isPageLoading && !isError && totalPages > 0" :current-page="currentPage"
                         :total-pages="totalPages" @change="setPage" />
                 </div>
             </div>
