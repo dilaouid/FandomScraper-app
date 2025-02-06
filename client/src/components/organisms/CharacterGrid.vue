@@ -6,7 +6,7 @@ import type { Character } from '@/types'
 
 const props = defineProps<{
     characters: Character[];
-    loading?: boolean;
+    loading: boolean;
     error?: boolean;
     wikiName: string;
 }>();
