@@ -20,6 +20,7 @@ export const characterController = {
             arrayFields: query.arrayFields?.split(','),
             withId: query.withId === 'true',
             recursive: query.recursive === 'true',
+            lang: query.lang as 'en' | 'fr' || 'en',
             ignore
         };
         const cacheKey = cache.createCacheKey(`findAll:${wiki}`, query);
@@ -30,8 +31,7 @@ export const characterController = {
         }
 
         const characters = await scraper.findAll(wiki, {
-            ...options,
-            lang: query.lang as 'en' | 'fr'
+            ...options
         });
         cache.set(cacheKey, characters, 900000);
         return c.json(characters)
