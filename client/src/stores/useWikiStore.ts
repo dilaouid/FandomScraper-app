@@ -13,20 +13,22 @@ export interface WikiMetadata {
 export const useWikiStore = defineStore('wiki', () => {
     const wikisMetadata = ref<Record<string, WikiMetadata>>({})
     const currentLanguage = ref<string>('en')
+    const isLanguageSwitching = ref(false)
 
     const setWikiMetadata = (wikiName: string, metadata: WikiMetadata) => {
         wikisMetadata.value[wikiName] = metadata
     }
 
-
     const getWikiMetadata = (wikiName: string) => {
-        const metadata = wikisMetadata.value[wikiName]
-        return metadata
+        return wikisMetadata.value[wikiName]
     }
-
 
     const setLanguage = (lang: string) => {
         currentLanguage.value = lang
+    }
+
+    const setLanguageSwitching = (value: boolean) => {
+        isLanguageSwitching.value = value
     }
 
     const getWikiFilters = computed(() => (wikiName: string) => {
@@ -45,13 +47,14 @@ export const useWikiStore = defineStore('wiki', () => {
         return available
     })
 
-
     return {
         wikisMetadata,
         currentLanguage,
+        isLanguageSwitching,
         setWikiMetadata,
         getWikiMetadata,
         setLanguage,
+        setLanguageSwitching,
         getWikiFilters
     }
 })
