@@ -2,10 +2,11 @@
   "name": "fandomscraper-app",
   "private": true,
   "devDependencies": {
-    "turbo": "^1.13.4"
+    "turbo": "^2.4.0"
   },
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build"
-  }
+  },
+  "packageManager": "pnpm@9.15.3"
 }
