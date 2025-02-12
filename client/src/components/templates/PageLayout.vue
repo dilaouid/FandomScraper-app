@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import GridBackground from '../atoms/GridBackground.vue';
 import AppFooter from '../organisms/AppFooter.vue';
 
 </script>
 
 <template>
+    <GridBackground />
     <div class="min-h-screen h-full flex flex-col bg-[#1a0f0f]">
         <!-- Background slot -->
         <div class="fixed inset-0 w-full h-full">
