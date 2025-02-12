@@ -94,9 +94,17 @@ async function handleToggleView(field: string) {
 const getStatusColor = (status?: string) => {
     if (!status) return 'bg-gray-500/20'
     switch (status.toLowerCase()) {
-        case 'alive': return 'bg-green-500/20 text-green-200'
-        case 'deceased': return 'bg-red-500/20 text-red-200'
-        case 'unknown': return 'bg-yellow-500/20 text-yellow-200'
+        case 'alive':
+        case 'vivant':
+        case 'vivante':
+            return 'bg-green-500/20 text-green-200'
+        case 'décédé':
+        case 'décédée':
+        case 'deceased':
+            return 'bg-red-500/20 text-red-200'
+        case 'unknown':
+        case 'inconnu':
+            return 'bg-yellow-500/20 text-yellow-200'
         default: return 'bg-gray-500/20'
     }
 }
@@ -216,7 +224,8 @@ const formatFieldName = (field: string): string =>
                     <div class="grid gap-4">
                         <CharacterDetail v-for="field in additionalFields" :key="field" :field="field"
                             :value="character?.data?.[field]" :is-array="arrayFields.includes(field)"
-                            :is-active="fields.includes(field)" :requested-but-empty="emptyRequestedFields.includes(field)"
+                            :is-active="fields.includes(field)"
+                            :requested-but-empty="emptyRequestedFields.includes(field)"
                             @toggle-visibility="handleToggleView(field)" @toggle-array="handleToggleArray(field)" />
                     </div>
                 </div>

@@ -24,6 +24,7 @@ export function useWikiMetadata(wikiName: string) {
             
             return data
         },
+        placeholderData: () => store.getWikiMetadata(wikiName),
         staleTime: 50000,
         gcTime: Infinity,
         enabled: !store.getWikiMetadata(wikiName)

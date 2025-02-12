@@ -35,6 +35,7 @@ const {
 
 const { isLoading: isMetadataLoading } = useWikiMetadata(wikiName)
 const store = useWikiStore()
+const { currentLanguage } = useWikiStore()
 
 const isPageLoading = computed(() =>
   isLoading.value.value || isMetadataLoading.value || store.isLanguageSwitching

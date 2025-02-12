@@ -1,23 +1,22 @@
-import { computed, ref } from "vue"
-import { useRoute } from "vue-router"
+import { ref } from "vue"
 
 import { useQuery } from "@tanstack/vue-query"
+import { useWikiStore } from "@/stores/useWikiStore"
 const apiUrl = import.meta.env.VITE_API_URL
 
 export function useCharacterDetails(wikiName: string, characterId: number, initialFields: string[], initialArrayFields: string[]) {
-    const route = useRoute()
-    const lang = computed(() => route.query.lang?.toString() || 'en')
-
+    const { currentLanguage } = useWikiStore()
+    
     const fields = ref(initialFields)
     const arrayFields = ref(initialArrayFields)
 
     const query = useQuery({
-        queryKey: ['character', wikiName, characterId, fields.value, arrayFields.value, lang.value],
+        queryKey: ['character', wikiName, characterId, fields.value, arrayFields.value, currentLanguage],
         queryFn: async () => {
             const params = new URLSearchParams({
                 fields: ['images', ...fields.value].join(','),
                 arrayFields: arrayFields.value.join(','),
-                lang: lang.value
+                lang: currentLanguage
             })
             const response = await fetch(`${apiUrl}/${wikiName}/characters/id/${characterId}?${params}`)
             if (!response.ok)

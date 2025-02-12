@@ -1,8 +1,9 @@
-import { computed, watch } from 'vue'
+import { computed, Ref, watch } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useFiltersStore } from '@/stores/useFiltersStore'
 import { useRoute, useRouter } from 'vue-router'
 import { useWikiMetadata } from '@/composables/useWikiMetadata'
+import { WikiMetadata } from '@/stores/useWikiStore'
 
 const apiUrl = import.meta.env.VITE_API_URL
 const PER_PAGE = 12
@@ -12,7 +13,7 @@ export function useCharacters(wikiName: string) {
     const router = useRouter()
     const filtersStore = useFiltersStore()
     const queryClient = useQueryClient()
-    const { data: metadata } = useWikiMetadata(wikiName)
+    const { data: metadata } = useWikiMetadata(wikiName) as { data: Ref<WikiMetadata | undefined> }
     const lang = computed(() => route.query.lang?.toString() || 'en')
 
     const selectedFields = computed({
