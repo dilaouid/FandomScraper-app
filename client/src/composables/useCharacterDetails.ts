@@ -2,10 +2,13 @@ import { ref } from "vue"
 
 import { useQuery } from "@tanstack/vue-query"
 import { useWikiStore } from "@/stores/useWikiStore"
+import { useApiTrackingStore } from '@/stores/useApiTrackingStore'
+
 const apiUrl = import.meta.env.VITE_API_URL
 
 export function useCharacterDetails(wikiName: string, characterId: number, initialFields: string[], initialArrayFields: string[]) {
     const { currentLanguage } = useWikiStore()
+    const apiTrackingStore = useApiTrackingStore()
     
     const fields = ref(initialFields)
     const arrayFields = ref(initialArrayFields)
@@ -13,11 +16,19 @@ export function useCharacterDetails(wikiName: string, characterId: number, initi
     const query = useQuery({
         queryKey: ['character', wikiName, characterId, fields.value, arrayFields.value, currentLanguage],
         queryFn: async () => {
-            const params = new URLSearchParams({
-                fields: ['images', ...fields.value].join(','),
-                arrayFields: arrayFields.value.join(','),
+            const paramsObject = {
+                fields: ['images', ...fields.value],
+                arrayFields: arrayFields.value,
                 lang: currentLanguage
+            }
+            const params = new URLSearchParams({
+                fields: paramsObject.fields.join(','),
+                arrayFields: paramsObject.arrayFields.join(','),
+                lang: paramsObject.lang
             })
+
+            apiTrackingStore.trackApiCall(`${apiUrl}/${wikiName}/characters/id/${characterId}`, paramsObject)
+
             const response = await fetch(`${apiUrl}/${wikiName}/characters/id/${characterId}?${params}`)
             if (!response.ok)
                 throw new Error(response.status === 404 ? 'Character not found' : 'An error occurred')

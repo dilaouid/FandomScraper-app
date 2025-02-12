@@ -1,4 +1,6 @@
+<!-- PageLayout.vue -->
 <script setup lang="ts">
+import DebugButton from '../atoms/DebugButton.vue';
 import GridBackground from '../atoms/GridBackground.vue';
 import AppFooter from '../organisms/AppFooter.vue';
 
@@ -21,5 +23,6 @@ import AppFooter from '../organisms/AppFooter.vue';
             <!-- Footer -->
             <AppFooter class="relative z-10 mt-auto" />
         </div>
+        <DebugButton />
     </div>
 </template>
