@@ -4,7 +4,7 @@ import { useFiltersStore } from '@/stores/useFiltersStore'
 import { useRoute, useRouter } from 'vue-router'
 import { useWikiMetadata } from '@/composables/useWikiMetadata'
 
-
+const apiUrl = import.meta.env.VITE_API_URL
 const PER_PAGE = 12
 
 export function useCharacters(wikiName: string) {
@@ -67,7 +67,7 @@ export function useCharacters(wikiName: string) {
             if (searchTerm.value) {
                 params.append('search', searchTerm.value)
             }
-            const response = await fetch(`http://localhost:3000/${wikiName}/characters?${params}`)
+            const response = await fetch(`${apiUrl}/${wikiName}/characters?${params}`)
             const data = await response.json()
             return data
         },
