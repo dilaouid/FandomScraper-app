@@ -1,4 +1,3 @@
-<!-- molecules/CharacterNotFound.vue -->
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { AlertCircle } from 'lucide-vue-next'

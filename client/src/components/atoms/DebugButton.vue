@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Bug, Code2 } from 'lucide-vue-next'
+import { Code2 } from 'lucide-vue-next'
 import DebugModal from '../molecules/DebugModal.vue';
 
 const isOpen = ref(false)
@@ -17,7 +17,7 @@ const toggleModal = () => isOpen.value = !isOpen.value
       <Code2 class="w-5 h-5 text-red-200" />
     </button>
 
-    <DebugModal 
+    <DebugModal
       v-model:open="isOpen" 
       :route="$route"
     />

@@ -1,22 +1,78 @@
-<!-- molecules/CharacterImageGallery.vue -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { useWikiStore } from '@/stores/useWikiStore'
+
+const apiUrl = import.meta.env.VITE_API_URL
+const store = useWikiStore()
 
 const props = defineProps<{
     images: string[]
 }>()
 
 const currentIndex = ref(0)
+const resolvedUrls = ref(new Map<string, string>())
+const loading = ref(true)
+
+/**
+ * Résolution d'URL avec fallback proxy
+ */
+const resolveImageUrl = async (url: string): Promise<string> => {
+    try {
+        const response = await fetch(url, { method: 'HEAD' })
+        if (response.status === 404) {
+            const referer = store.getBaseUrl(url)
+            return `${apiUrl}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
+        }
+        return url
+    } catch (error) {
+        const referer = store.getBaseUrl(url)
+        return `${apiUrl}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
+    }
+}
+
+/**
+ * Résolution de toutes les images
+ */
+const resolveAllImages = async () => {
+    loading.value = true
+    try {
+        await Promise.all(props.images.map(async (url) => {
+            if (!resolvedUrls.value.has(url)) {
+                const resolvedUrl = await resolveImageUrl(url)
+                resolvedUrls.value.set(url, resolvedUrl)
+            }
+        }))
+    } finally {
+        loading.value = false
+    }
+}
+
+/**
+ * Images résolues pour l'affichage
+ */
+const displayImages = computed(() => 
+    props.images.map(url => resolvedUrls.value.get(url) || url)
+)
 
 const next = () => currentIndex.value = (currentIndex.value + 1) % props.images.length
 const prev = () => currentIndex.value = currentIndex.value === 0 ? props.images.length - 1 : currentIndex.value - 1
+
+// Résolution initiale des images
+onMounted(() => {
+    resolveAllImages()
+})
 </script>
+
 
 <template>
     <div class="relative rounded-2xl overflow-hidden bg-gradient-to-b from-red-950/20 to-black/40">
         <!-- Main Image -->
         <div class="relative aspect-square lg:aspect-[4/3] overflow-hidden">
+            <div v-if="loading" 
+                 class="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                <div class="w-8 h-8 border-2 border-red-500/20 border-t-red-500 rounded-full animate-spin" />
+            </div>
             <transition
                 enter-active-class="transition-opacity duration-300 ease-out"
                 leave-active-class="transition-opacity duration-300 ease-in"
@@ -26,7 +82,7 @@ const prev = () => currentIndex.value = currentIndex.value === 0 ? props.images.
             >
                 <img 
                     :key="currentIndex"
-                    :src="images[currentIndex]" 
+                    :src="displayImages[currentIndex]" 
                     :alt="`Character image ${currentIndex + 1}`"
                     class="w-full h-full object-contain bg-gradient-to-b from-transparent to-black/20" 
                 />
@@ -37,7 +93,7 @@ const prev = () => currentIndex.value = currentIndex.value === 0 ? props.images.
                 class="absolute bottom-0 inset-x-0 p-6 flex justify-center gap-3 
                        bg-gradient-to-t from-black/80 via-black/50 to-transparent">
                 <button 
-                    v-for="(img, index) in images" 
+                    v-for="(img, index) in displayImages" 
                     :key="index"
                     @click="currentIndex = index"
                     class="relative group overflow-hidden"

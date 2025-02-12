@@ -1,4 +1,3 @@
-<!-- CharacterDetail.vue -->
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 
@@ -17,6 +16,7 @@ interface Props {
     isArray: boolean
     isActive: boolean
     requestedButEmpty?: boolean
+    isLoading: boolean
 }
 
 const props = defineProps<Props>()
@@ -55,6 +55,13 @@ const formatFieldName = (field: string): string => {
         .replace(/^./, str => str.toUpperCase())
 }
 
+const cardSpan = computed(() => {
+    if (!props.value) return 'col-span-1';
+    if (Array.isArray(props.value) && props.value.length > 2) return 'col-span-2';
+    return 'col-span-1';
+});
+
+
 onMounted(() => {
     if (!detailRef.value) return
 
@@ -67,40 +74,31 @@ onMounted(() => {
 
     observer.observe(detailRef.value)
 })
-
-const isCompactField = computed(() => {
-    const compactFields = ['birthday', 'height', 'weight', 'age', 'gender', 'nationality'];
-    return compactFields.includes(props.field);
-});
-
-const cardSpan = computed(() => {
-    if (!props.value) return 'col-span-1';
-    if (isCompactField.value) return 'col-span-1';
-    if (Array.isArray(props.value) && props.value.length > 2) return 'col-span-2';
-    return 'col-span-1';
-});
 </script>
 <template>
-    <div v-if="!requestedButEmpty" ref="detailRef" :class="[
-        cardSpan,
-        'group transition-all duration-500 ease-in-out',
-        {
-            'opacity-75 hover:opacity-100': !isActive,
-            'translate-x-0 opacity-100': isVisible,
-            '-translate-x-4 opacity-0': !isVisible
-        }
-    ]">
+    <div v-if="!requestedButEmpty" 
+         ref="detailRef" 
+         :class="[
+            cardSpan,
+            'group relative transition-all duration-500 ease-in-out',
+            {
+                'opacity-75 hover:opacity-100': !isActive,
+                'translate-x-0 opacity-100': isVisible,
+                '-translate-x-4 opacity-0': !isVisible
+            }
+         ]">
         <div class="h-full relative rounded-lg bg-gradient-to-br from-red-950/20 to-black/40 
-                  backdrop-blur-sm overflow-hidden border border-red-900/20 
-                  hover:border-red-800/30 transition-all duration-300
-                  group-hover:shadow-lg group-hover:shadow-red-900/10">
+                   backdrop-blur-sm overflow-hidden border border-red-900/20 
+                   hover:border-red-800/30 transition-all duration-300
+                   group-hover:shadow-lg group-hover:shadow-red-900/10"
+             :class="{ 'pointer-events-none': isLoading }">
             <!-- Header -->
             <div class="p-4 flex items-center justify-between border-b border-red-900/10">
                 <div class="flex items-center gap-3">
                     <div class="p-1.5 rounded-md bg-red-500/10 group-hover:bg-red-500/20 
-                        transition-colors duration-300">
-                        <component :is="getIcon(field)" class="w-4 h-4 text-red-300/80 group-hover:text-red-300 
-                               transition-colors duration-300" />
+                              transition-colors duration-300">
+                        <component :is="getIcon(field)" 
+                                 class="w-4 h-4 text-red-300/80 group-hover:text-red-300" />
                     </div>
                     <h3 class="text-sm font-medium text-white/80 group-hover:text-white/90">
                         {{ formatFieldName(field) }}
@@ -108,12 +106,22 @@ const cardSpan = computed(() => {
                 </div>
 
                 <div class="flex items-center gap-1">
-                    <button class="p-1.5 rounded-md hover:bg-red-500/20 transition-colors"
-                        :class="{ 'bg-red-500/20 text-red-300': isActive }" @click="$emit('toggle-visibility')">
+                    <button class="p-1.5 rounded-md hover:bg-red-500/20 transition-all relative"
+                            :class="{ 
+                                'bg-red-500/20 text-red-300': isActive,
+                                'opacity-50': isLoading 
+                            }" 
+                            @click="$emit('toggle-visibility')"
+                            :disabled="isLoading">
                         <Eye class="w-3.5 h-3.5 text-red-200/70" />
                     </button>
-                    <button v-if="!isCompactField" class="p-1.5 rounded-md hover:bg-red-500/20 transition-colors"
-                        :class="{ 'bg-red-500/20 text-red-300': isArray }" @click="$emit('toggle-array')">
+                    <button class="p-1.5 rounded-md hover:bg-red-500/20 transition-all relative"
+                            :class="{ 
+                                'bg-red-500/20 text-red-300': isArray,
+                                'opacity-50': isLoading 
+                            }" 
+                            @click="$emit('toggle-array')"
+                            :disabled="isLoading">
                         <List class="w-3.5 h-3.5 text-red-200/70" />
                     </button>
                 </div>
@@ -122,19 +130,23 @@ const cardSpan = computed(() => {
             <!-- Content avec animation -->
             <div class="p-4" :class="{ 'space-y-2': Array.isArray(value) && value.length > 1 }">
                 <template v-if="value && (isActive || isArray)">
-                    <TransitionGroup v-if="Array.isArray(value) && !isCompactField" name="list" tag="div"
-                        class="grid gap-2" :class="{
-                            'grid-cols-2': value.length > 3,
-                            'grid-cols-1': value.length <= 3
-                        }">
-                        <div v-for="(item, index) in value" :key="index" class="px-3 py-2 rounded-md bg-black/20 text-sm text-white/80
-                          border border-red-900/10 hover:border-red-800/20
-                          transition-all duration-300 hover:translate-x-1
-                          hover:bg-black/30">
+                    <TransitionGroup v-if="Array.isArray(value)" 
+                                   name="list" 
+                                   tag="div" 
+                                   class="grid gap-2" 
+                                   :class="{
+                                       'grid-cols-2': value.length > 3,
+                                       'grid-cols-1': value.length <= 3
+                                   }">
+                        <div v-for="(item, index) in value" 
+                             :key="index" 
+                             class="px-3 py-2 rounded-md bg-black/20 text-sm text-white/80
+                                    border border-red-900/10 hover:border-red-800/20
+                                    transition-all duration-300 hover:translate-x-1
+                                    hover:bg-black/30">
                             {{ item }}
                         </div>
                     </TransitionGroup>
-
                     <div v-else class="text-white/90">
                         {{ Array.isArray(value) ? value[0] : value }}
                     </div>
@@ -145,9 +157,16 @@ const cardSpan = computed(() => {
                 </div>
             </div>
         </div>
+
+        <!-- Loading overlay -->
+        <div v-if="isLoading" 
+             class="absolute inset-0 bg-black/5 backdrop-blur-[1px] rounded-lg
+                    flex items-center justify-center">
+            <div class="w-5 h-5 border-2 border-red-500/20 border-t-red-500 
+                       rounded-full animate-spin" />
+        </div>
     </div>
 </template>
-
 <style scoped>
 .list-move,
 .list-enter-active,
