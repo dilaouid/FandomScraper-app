@@ -102,7 +102,7 @@ const handleFieldsChange = (fields: string[]) => {
 
                 <!-- Search and Filters -->
                 <div class="flex flex-wrap gap-4 items-center justify-between">
-                    <SearchBar v-model="searchTerm" @search="setSearch" placeholder="Rechercher par nom ou ID..."
+                    <SearchBar v-model="searchTerm" @search="setSearch" placeholder="Search by name or ID..."
                         class="flex-1 min-w-[300px]" />
                     <FilterOptions v-model="selectedFields" :wiki-name="wikiName"
                         @update:modelValue="handleFieldsChange" />
@@ -124,7 +124,7 @@ const handleFieldsChange = (fields: string[]) => {
                             <div class="w-12 h-12 border-4 border-t-transparent border-white rounded-full animate-spin">
                             </div>
                             <p class="text-white text-center text-sm font-medium">
-                                Chargement des personnages...
+                                Loading characters...
                             </p>
                         </div>
                     </div>
@@ -139,7 +139,7 @@ const handleFieldsChange = (fields: string[]) => {
             <div class="mt-8 rounded-xl bg-black/30 backdrop-blur-md border border-white/10 p-4">
                 <div class="flex flex-wrap gap-4 items-center justify-between">
                     <div class="text-white/70">
-                        Page {{ currentPage }} sur {{ totalPages }}
+                        Page {{ currentPage }} of {{ totalPages }}
                     </div>
                     <Pagination v-if="!isPageLoading && !isError && totalPages > 0" :current-page="currentPage"
                         :total-pages="totalPages" @change="setPage" />

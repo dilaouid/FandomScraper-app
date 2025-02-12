@@ -58,13 +58,13 @@ const handleLanguageChange = async () => {
 
         <div class="text-white/70 mt-1 flex gap-4">
             <p v-if="metadata?.count">
-                {{ metadata.count }} personnages disponibles
+                {{ metadata.count }} available character{{ metadata.count > 1 ? 's' : '' }}
             </p>
             <template v-if="(metadata?.availableLanguages?.length ?? 0) > 1">
                 <span v-if="metadata?.count && metadata">•</span>
                 <p>
-                    {{ metadata?.availableLanguages?.length ?? 0 }} langue{{ (metadata?.availableLanguages?.length ?? 0) > 1 ? 's' : ''
-                    }} disponible{{ (metadata?.availableLanguages?.length ?? 0) > 1 ? 's' : '' }}
+                    {{ metadata?.availableLanguages?.length ?? 0 }} available
+                    language{{ (metadata?.availableLanguages?.length ?? 0) > 1 ? 's' : '' }}
                 </p>
             </template>
         </div>

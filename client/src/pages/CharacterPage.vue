@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useWikiStore } from '@/stores/useWikiStore'
 import { useWikiMetadata } from '@/composables/useWikiMetadata'
 import { useCharacterDetails } from '@/composables/useCharacterDetails'
 
 import PageLayout from '@/components/templates/PageLayout.vue'
-import BackButton from '@/components/atoms/BackButton.vue'
 import CharacterImageGallery from '@/components/molecules/CharacterImageGallery.vue'
 import CharacterDetail from '@/components/molecules/CharacterDetail.vue'
+import BackButton from '@/components/atoms/BackButton.vue'
 import Badge from '@/components/ui/badge/Badge.vue'
 import CommonFieldCard from '@/components/atoms/CommonFieldCard.vue'
+import CharacterNotFound from '@/components/molecules/CharacterNotFound.vue'
 
 import { ExternalLink, User, Heart, Cake, MapPin, Briefcase, Users, Book, Film, Flag, Type, Quote, Sword, Activity } from 'lucide-vue-next'
 import type { IconComponent } from '@/types'
@@ -19,7 +20,7 @@ const route = useRoute()
 const wikiName = route.params.wiki as string
 const store = useWikiStore()
 
-const { id } = route.params
+const { id } = route.params as { id: string }
 
 const { isLoading: metaLoading } = useWikiMetadata(wikiName)
 
@@ -43,7 +44,7 @@ const additionalFields = computed(() =>
 const emptyRequestedFields = ref<string[]>([])
 const hiddenFields = ref<string[]>([])
 
-const { data: character, isLoading, updateField, fields, arrayFields } = useCharacterDetails(
+const { data: character, isLoading, updateField, fields, arrayFields, isError } = useCharacterDetails(
     wikiName,
     Number(route.params.id),
     baseFields.value,
@@ -52,8 +53,7 @@ const { data: character, isLoading, updateField, fields, arrayFields } = useChar
 
 // Loading global
 const isPageLoading = computed(() =>
-    // A voir comment régler le soucis du .value ....
-    store.isLanguageSwitching.value || isLoading.value || metaLoading.value
+    store.isLanguageSwitching || isLoading.value || metaLoading.value
 )
 
 async function handleToggleArray(field: string) {
@@ -142,80 +142,85 @@ const formatFieldName = (field: string): string =>
 <template>
     <PageLayout>
         <div class="container mx-auto px-4 py-8">
-            <!-- Header -->
-            <header
-                class="mb-8 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 backdrop-blur-lg bg-black/30 p-6 rounded-xl border border-white/10 shadow-lg">
-                <BackButton :to="`/${wikiName}/characters`" />
-                <div class="flex-1">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <h1 class="text-4xl font-bold text-white">
-                            {{ character?.name || '...' }}
-                        </h1>
-                        <Badge variant="outline" class="text-white/60">
-                            ID: {{ id }}
-                        </Badge>
-                        <Badge v-if="character?.data?.status" :class="getStatusColor(character.data.status)">
-                            {{ character.data.status }}
-                        </Badge>
+            <template v-if="isError">
+                <CharacterNotFound :character-id="id" :wiki-name="wikiName" />
+            </template>
+            <template v-else>
+                <!-- Header -->
+                <header
+                    class="mb-8 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 backdrop-blur-lg bg-black/30 p-6 rounded-xl border border-white/10 shadow-lg">
+                    <BackButton />
+                    <div class="flex-1">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <h1 class="text-4xl font-bold text-white">
+                                {{ character?.name || '...' }}
+                            </h1>
+                            <Badge variant="outline" class="text-white/60">
+                                ID: {{ id }}
+                            </Badge>
+                            <Badge v-if="character?.data?.status" :class="getStatusColor(character.data.status)">
+                                {{ character.data.status }}
+                            </Badge>
+                        </div>
+                        <p v-if="character?.data?.kanji" class="text-white/60 mt-2 font-japanese">
+                            {{ character.data.kanji }}
+                        </p>
                     </div>
-                    <p v-if="character?.data?.kanji" class="text-white/60 mt-2 font-japanese">
-                        {{ character.data.kanji }}
-                    </p>
+                    <a v-if="character?.url" :href="character.url" target="_blank"
+                        class="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/60 hover:text-white"
+                        title="View on Wiki">
+                        <ExternalLink class="w-5 h-5" />
+                    </a>
+                </header>
+
+                <!-- Section Quote -->
+                <section class="mb-8 relative py-12" v-if="character?.data?.quote">
+                    <blockquote class="relative z-10 max-w-4xl mx-auto px-12">
+                        <div class="absolute top-0 left-0 text-8xl text-red-500/10 font-serif leading-none"
+                            style="transform: translate(-25%, -25%)">"</div>
+                        <p
+                            class="text-3xl font-japanese bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent">
+                            {{ Array.isArray(character.data.quote) ? character.data.quote[0] : character.data.quote }}
+                        </p>
+                        <div class="absolute bottom-0 right-0 text-8xl text-red-500/10 font-serif leading-none"
+                            style="transform: translate(25%, 25%)">"</div>
+                    </blockquote>
+                </section>
+
+                <!-- Loading state -->
+                <div v-if="isPageLoading" class="flex items-center justify-center min-h-[400px]">
+                    <div class="w-12 h-12 border-4 border-t-transparent border-white rounded-full animate-spin" />
                 </div>
-                <a v-if="character?.url" :href="character.url" target="_blank"
-                    class="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/60 hover:text-white"
-                    title="View on Wiki">
-                    <ExternalLink class="w-5 h-5" />
-                </a>
-            </header>
 
-            <!-- Section Quote -->
-            <section class="mb-8 relative py-12" v-if="character?.data?.quote">
-                <blockquote class="relative z-10 max-w-4xl mx-auto px-12">
-                    <div class="absolute top-0 left-0 text-8xl text-red-500/10 font-serif leading-none"
-                        style="transform: translate(-25%, -25%)">"</div>
-                    <p
-                        class="text-3xl font-japanese bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent">
-                        {{ Array.isArray(character.data.quote) ? character.data.quote[0] : character.data.quote }}
-                    </p>
-                    <div class="absolute bottom-0 right-0 text-8xl text-red-500/10 font-serif leading-none"
-                        style="transform: translate(25%, 25%)">"</div>
-                </blockquote>
-            </section>
+                <!-- Content -->
+                <div v-else class="grid grid-cols-1 lg:grid-cols-[400px,1fr] gap-8">
 
-            <!-- Loading state -->
-            <div v-if="isPageLoading" class="flex items-center justify-center min-h-[400px]">
-                <div class="w-12 h-12 border-4 border-t-transparent border-white rounded-full animate-spin" />
-            </div>
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <CharacterImageGallery v-if="character?.data?.images?.length" :images="character.data.images"
+                            class="rounded-xl overflow-hidden border border-white/10 shadow-lg" />
+                        <!-- Common Fields Grid -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <CommonFieldCard v-for="fieldName in commonFields" :key="fieldName" :fieldName="fieldName"
+                                :fieldValue="character?.data?.[fieldName]" :inFields="fields.includes(fieldName)"
+                                :inArrayFields="arrayFields.includes(fieldName)"
+                                :requestedButEmpty="emptyRequestedFields.includes(fieldName)" :getIcon="getIcon"
+                                :getFieldColor="getFieldColor" :formatFieldName="formatFieldName"
+                                @toggle-view="() => handleToggleView(fieldName)"
+                                @toggle-array="() => handleToggleArray(fieldName)" />
 
-            <!-- Content -->
-            <div v-else class="grid grid-cols-1 lg:grid-cols-[400px,1fr] gap-8">
+                        </div>
+                    </div>
 
-                <!-- Left Column -->
-                <div class="space-y-6">
-                    <CharacterImageGallery v-if="character?.data?.images?.length" :images="character.data.images"
-                        class="rounded-xl overflow-hidden border border-white/10 shadow-lg" />
-                    <!-- Common Fields Grid -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <CommonFieldCard v-for="fieldName in commonFields" :key="fieldName" :fieldName="fieldName"
-                            :fieldValue="character?.data?.[fieldName]" :inFields="fields.includes(fieldName)"
-                            :inArrayFields="arrayFields.includes(fieldName)"
-                            :requestedButEmpty="emptyRequestedFields.includes(fieldName)" :getIcon="getIcon"
-                            :getFieldColor="getFieldColor" :formatFieldName="formatFieldName"
-                            @toggle-view="() => handleToggleView(fieldName)"
-                            @toggle-array="() => handleToggleArray(fieldName)" />
-
+                    <!-- Right Column -->
+                    <div class="grid gap-4">
+                        <CharacterDetail v-for="field in additionalFields" :key="field" :field="field"
+                            :value="character?.data?.[field]" :is-array="arrayFields.includes(field)"
+                            :is-active="fields.includes(field)" :requested-but-empty="emptyRequestedFields.includes(field)"
+                            @toggle-visibility="handleToggleView(field)" @toggle-array="handleToggleArray(field)" />
                     </div>
                 </div>
-
-                <!-- Right Column -->
-                <div class="grid gap-4">
-                    <CharacterDetail v-for="field in additionalFields" :key="field" :field="field"
-                        :value="character?.data?.[field]" :is-array="arrayFields.includes(field)"
-                        :is-active="fields.includes(field)" :requested-but-empty="emptyRequestedFields.includes(field)"
-                        @toggle-visibility="handleToggleView(field)" @toggle-array="handleToggleArray(field)" />
-                </div>
-            </div>
+            </template>
         </div>
     </PageLayout>
 </template>

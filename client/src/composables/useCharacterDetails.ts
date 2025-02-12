@@ -7,7 +7,7 @@ const apiUrl = import.meta.env.VITE_API_URL
 export function useCharacterDetails(wikiName: string, characterId: number, initialFields: string[], initialArrayFields: string[]) {
     const route = useRoute()
     const lang = computed(() => route.query.lang?.toString() || 'en')
-    
+
     const fields = ref(initialFields)
     const arrayFields = ref(initialArrayFields)
 
@@ -20,6 +20,9 @@ export function useCharacterDetails(wikiName: string, characterId: number, initi
                 lang: lang.value
             })
             const response = await fetch(`${apiUrl}/${wikiName}/characters/id/${characterId}?${params}`)
+            if (!response.ok)
+                throw new Error(response.status === 404 ? 'Character not found' : 'An error occurred')
+
             return response.json()
         },
         enabled: !!wikiName && !!characterId

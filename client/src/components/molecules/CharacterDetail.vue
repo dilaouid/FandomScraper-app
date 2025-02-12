@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import {
-    Eye, EyeOff, ListPlus, List,
+    Eye, List,
     User, Heart, Cake, MapPin,
     Briefcase, Users, Book, Film,
     Flag, Type, Quote, Sword,
@@ -137,7 +137,7 @@ onMounted(() => {
                 </template>
             </div>
             <div v-else class="text-white/40 italic pl-8">
-                No data available
+                Hidden data
             </div>
         </div>
     </div>

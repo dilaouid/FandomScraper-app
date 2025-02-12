@@ -16,6 +16,7 @@
     "lodash": "^4.17.21",
     "lucide-vue-next": "^0.474.0",
     "pinia": "^2.3.1",
+    "pinia-plugin-persistedstate": "^4.2.0",
     "radix-vue": "^1.9.13",
     "vue": "^3.5.13",
     "vue-router": "4"
