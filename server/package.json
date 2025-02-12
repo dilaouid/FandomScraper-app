@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",
-    "fandomscraper": "^1.0.84",
+    "fandomscraper": "^1.0.86",
     "hono": "^4.7.0",
     "zod": "^3.24.1"
   },

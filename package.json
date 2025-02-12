@@ -2,7 +2,7 @@
   "name": "fandomscraper-app",
   "private": true,
   "devDependencies": {
-    "turbo": "^2.4.0"
+    "turbo": "^2.4.1"
   },
   "scripts": {
     "dev": "turbo run dev",
