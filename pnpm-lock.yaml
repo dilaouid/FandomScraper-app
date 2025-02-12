@@ -2188,9 +2188,6 @@ packages:
   pathe@2.0.2:
     resolution: {integrity: sha512-15Ztpk+nov8DR524R4BF7uEuzESgzUEAV4Ah7CUMNGXdE5ELuvxElxGXndBl32vMSsWa1jpNf22Z+Er3sKwq+w==}
 
-  pathe@2.0.3:
-    resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
-
   pathval@2.0.0:
     resolution: {integrity: sha512-vE7JKRyES09KiunauX7nd2Q9/L7lhok4smP9RZTDeD4MVs72Dp2qNFVz39Nz5a0FVEW0BJR6C0DYrq6unoziZA==}
     engines: {node: '>= 14.16'}
@@ -3074,6 +3071,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zod@3.24.1:
+    resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
+
   zod@3.24.2:
     resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
 
@@ -3799,13 +3799,13 @@ snapshots:
   '@vitest/runner@3.0.4':
     dependencies:
       '@vitest/utils': 3.0.4
-      pathe: 2.0.3
+      pathe: 2.0.2
 
   '@vitest/snapshot@3.0.4':
     dependencies:
       '@vitest/pretty-format': 3.0.4
       magic-string: 0.30.17
-      pathe: 2.0.3
+      pathe: 2.0.2
 
   '@vitest/spy@3.0.4':
     dependencies:
@@ -3816,7 +3816,7 @@ snapshots:
       '@vitest/utils': 3.0.4
       fflate: 0.8.2
       flatted: 3.3.2
-      pathe: 2.0.3
+      pathe: 2.0.2
       sirv: 3.0.0
       tinyglobby: 0.2.10
       tinyrainbow: 2.0.0
@@ -5057,8 +5057,6 @@ snapshots:
 
   pathe@2.0.2: {}
 
-  pathe@2.0.3: {}
-
   pathval@2.0.0: {}
 
   perfect-debounce@1.0.0: {}
@@ -5359,7 +5357,7 @@ snapshots:
       tsconfig-paths: 4.2.0
       vitest: 3.0.4(@types/node@20.17.17)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@22.1.0)(stylus@0.57.0)(tsx@4.19.2)(yaml@2.7.0)
       vue-metamorph: 3.2.0(eslint@9.19.0(jiti@2.4.2))
-      zod: 3.24.2
+      zod: 3.24.1
     transitivePeerDependencies:
       - '@vue/composition-api'
       - eslint
@@ -5806,7 +5804,7 @@ snapshots:
       cac: 6.7.14
       debug: 4.4.0
       es-module-lexer: 1.6.0
-      pathe: 2.0.3
+      pathe: 2.0.2
       vite: 6.1.0(@types/node@20.17.17)(jiti@2.4.2)(stylus@0.57.0)(tsx@4.19.2)(yaml@2.7.0)
     transitivePeerDependencies:
       - '@types/node'
@@ -5861,7 +5859,7 @@ snapshots:
       debug: 4.4.0
       expect-type: 1.1.0
       magic-string: 0.30.17
-      pathe: 2.0.3
+      pathe: 2.0.2
       std-env: 3.8.0
       tinybench: 2.9.0
       tinyexec: 0.3.2
@@ -6025,5 +6023,7 @@ snapshots:
   yn@3.1.1: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@3.24.1: {}
 
   zod@3.24.2: {}
