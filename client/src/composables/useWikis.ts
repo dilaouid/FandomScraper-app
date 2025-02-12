@@ -24,7 +24,7 @@ export function useWikis() {
                     .split('-')
                     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
                     .join(' '),
-                imageUrl: `/src/assets/images/wikis/${wiki.name}.jpg`
+                imageUrl: `/images/wikis/${wiki.name}.jpg`
             }))
     })
 }
