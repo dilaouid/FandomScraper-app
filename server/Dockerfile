@@ -2,45 +2,47 @@ FROM node:20-slim as builder
 
 WORKDIR /app
 
-# Install pnpm
+# Install pnpm globally
 RUN npm install -g pnpm
 
-# Copy package files
+# Copier les fichiers de configuration
 COPY package.json ./
 COPY tsconfig.json ./
 
-# Install ALL dependencies
-RUN pnpm install --frozen-lockfile
+# Installer toutes les dépendances (sans lockfile)
+RUN pnpm install --no-frozen-lockfile
 
-# Copy source code
+# Copier le reste du code source
 COPY . .
 
-# Build
+# Build de l'application
 RUN pnpm build
-# Vérifier que le build a bien été créé
+
+# Vérifier que le build a été créé
 RUN ls -la dist/
 
-# Production image
+# ---------- Production Stage ----------
 FROM node:20-slim
 
 WORKDIR /app
 
-# Install pnpm
+# Installer pnpm globalement
 RUN npm install -g pnpm
 
-# Copy package files
+# Copier les fichiers de configuration nécessaires
 COPY package.json ./
 
-# Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
+# Installer uniquement les dépendances de production (sans lockfile)
+RUN pnpm install --prod --no-frozen-lockfile
 
-# Copy built files
+# Copier les fichiers build depuis le builder
 COPY --from=builder /app/dist ./dist
+
 # Vérifier que les fichiers sont bien copiés
 RUN ls -la dist/
 
-# Expose port
+# Exposer le port utilisé par l'application
 EXPOSE 3000
 
-# Start avec le chemin complet et le type module
+# Démarrer l'application
 CMD ["node", "--experimental-specifier-resolution=node", "dist/app.js"]
