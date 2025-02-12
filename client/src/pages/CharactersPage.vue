@@ -33,9 +33,8 @@ const {
   totalCount
 } = useCharacters(wikiName)
 
-const { isLoading: isMetadataLoading } = useWikiMetadata(wikiName)
+const { isLoading: isMetadataLoading, data } = useWikiMetadata(wikiName)
 const store = useWikiStore()
-const { currentLanguage } = useWikiStore()
 
 const isPageLoading = computed(() =>
   isLoading.value.value || isMetadataLoading.value || store.isLanguageSwitching
@@ -54,6 +53,18 @@ const handleCardClick = (characterId: number) => {
 const handleFieldsChange = (fields: string[]) => {
     setFields(fields)
 }
+
+watch(() => data.value, (newData) => {
+    if (newData) {
+        const availableLanguages = newData.availableLanguages || []
+        if (availableLanguages.includes('en')) {
+            store.setLanguage('en')
+        } else if (availableLanguages.includes('fr')) {
+            store.setLanguage('fr')
+        }
+    }
+}, { immediate: true })
+
 </script>
 
 <template>
