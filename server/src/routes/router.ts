@@ -1,7 +1,9 @@
 import { Hono } from 'hono'
-import { handlers } from "../controllers/characters"
+import { handlers } from '../handlers'
 
 const router = new Hono()
+
+router.get('/proxy', handlers.proxy)
 
 // Standard FandomScraper routes
 router.get('/:wiki/characters', handlers.findAll)
@@ -16,4 +18,4 @@ router.post('/personal-wiki/characters', handlers.findAllPersonal)
 router.post('/personal-wiki/characters/name/:name', handlers.findByNamePersonal)
 router.post('/personal-wiki/characters/id/:id', handlers.findByIdPersonal)
 
-export { router as characterRoutes }
+export { router }

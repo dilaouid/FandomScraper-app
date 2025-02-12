@@ -1,4 +1,9 @@
+import type { FunctionalComponent } from 'vue'
+import type { LucideProps } from 'lucide-vue-next'
+
 export type ArrayFields = 'affiliation' | 'occupations' | 'episode' | 'relatives' | 'images'
+
+export type IconComponent = FunctionalComponent<LucideProps>
 
 export interface Wiki {
     id: string
@@ -11,15 +16,30 @@ export interface Character {
     name: string
     url: string
     data?: {
-        age?: string
-        kanji?: string
-        status?: string
-        species?: string
-        gender?: string
-        images?: string[]
-        episode?: string[]
-        affiliation?: string[]
-        occupations?: string[]
+        name?: string;
+        kanji?: string;
+        quote?: string[];
+        romaji?: string;
+        status?: string;
+        species?: string;
+        gender?: string;
+        images?: string[];
+        episode?: string;
+        manga?: string;
+        age?: string;
+        affiliation?: string;
+        hairColor?: string;
+        eyeColor?: string;
+        occupations?: string;
+        seiyu?: string;
+        voiceActor?: string;
+        relatives?: string;
+        birthday?: string;
+        zodiac?: string;
+        height?: string;
+        weight?: string;
+        nationality?: string;
+        bloodType?: string;
     }
 }
 
@@ -35,3 +55,17 @@ export interface QueryParams {
     arrayFields?: ArrayFields[]
 }
 
+export interface CharactersResponse {
+    data: Character[];
+    total: number;
+}
+
+export interface CharacterQueryParams {
+    limit?: number;
+    offset?: number;
+    fields?: string[];
+    arrayFields?: string[];
+    withId?: boolean;
+    recursive?: boolean;
+    ignore?: string[];
+}

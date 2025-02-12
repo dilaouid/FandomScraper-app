@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import Home from './pages/Home.vue'
+import ToastProvider from './components/templates/ToastProvider.vue';
+
 </script>
 
 <template>
-  <Home />
+  <ToastProvider />
+  <router-view />
 </template>

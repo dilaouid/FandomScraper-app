@@ -7,13 +7,13 @@
     "start": "node --experimental-specifier-resolution=node dist/app.js"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.7",
-    "fandomscraper": "^1.0.76",
-    "hono": "^4.6.19",
-    "zod": "^3.24.1"
+    "@hono/node-server": "^1.13.8",
+    "fandomscraper": "^1.0.89",
+    "hono": "^4.7.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@types/node": "^20.17.16",
+    "@types/node": "^20.17.17",
     "ts-node-dev": "^2.0.0",
     "tsup": "^8.3.6",
     "tsx": "^4.19.2",

@@ -1,4 +1,3 @@
-<!-- src/components/molecules/WikiCard.vue -->
 <script setup lang="ts">
 import { ref } from 'vue'
 import AppImage from '../atoms/AppImage.vue'
@@ -35,7 +34,7 @@ const handleMouseLeave = () => {
                 <div class="gradient-overlay" :class="{ 'active': isHovered }">
                     <div class="card-content select-none">
                         <h2 class="card-title">{{ wiki.name }}</h2>
-                        <p class="card-description">Explorer les personnages →</p>
+                        <p class="card-description">Explore the characters →</p>
                     </div>
                 </div>
 

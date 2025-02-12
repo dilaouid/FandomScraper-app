@@ -7,6 +7,7 @@ export interface ScraperOptions {
     fields?: string[];
     arrayFields?: string[];
     ignore?: string[];
+    lang?: 'en' | 'fr';
 }
 
 

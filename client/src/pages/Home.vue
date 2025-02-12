@@ -32,7 +32,7 @@ const handleWikiSelect = (wiki: Wiki) => {
             <div class="fixed inset-0 bg-[#1a0f0f] overflow-hidden">
                 <div class="matrix-rain" aria-hidden="true">
                     <div v-for="n in 60" :key="n" class="matrix-column" :style="{
-                        left: `${(n - 1) * 1.67}%`,  // Plus de colonnes réparties également
+                        left: `${(n - 1) * 1.67}%`,
                         animationDelay: `-${Math.random() * 10}s`
                     }">
                         働 き す ぎ て 死 ぬ な 今 日 も 頑 張 ろ う 運 命 を 変 え る
@@ -217,10 +217,17 @@ const handleWikiSelect = (wiki: Wiki) => {
 </style>
 
 <style scoped>
+.glitch-container {
+    position: relative;
+    overflow: hidden; /* Empêche le débordement */
+    padding: 0.1em; /* Un peu de padding pour éviter que le glitch soit coupé */
+}
+
 .glitch {
     position: relative;
     text-shadow: 0.05em 0 0 #ff0000, -0.025em -0.05em 0 #0000ff;
     animation: glitch 725ms infinite;
+    display: inline-block; /* Pour contenir l'effet */
 }
 
 .glitch::before,
@@ -231,39 +238,38 @@ const handleWikiSelect = (wiki: Wiki) => {
     left: 0;
     width: 100%;
     height: 100%;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); /* Clip path complet */
 }
 
 .glitch::before {
     animation: glitch 500ms infinite;
     clip-path: polygon(30% 0, 70% 0, 70% 65%, 30% 65%);
     text-shadow: -0.05em 0 #ff0000;
+    transform-origin: center;
 }
 
 .glitch::after {
     animation: glitch 375ms infinite;
     clip-path: polygon(15% 0, 85% 0, 85% 65%, 15% 65%);
     text-shadow: 0.05em 0 #0000ff;
+    transform-origin: center;
 }
 
 @keyframes glitch {
     0% {
-        transform: skewX(0deg);
+        transform: translateX(0) skewX(0deg);
     }
-
     5% {
-        transform: skewX(2deg);
+        transform: translateX(2px) skewX(2deg);
     }
-
     10% {
-        transform: skewX(-2deg);
+        transform: translateX(-2px) skewX(-2deg);
     }
-
     15% {
-        transform: skewX(0deg);
+        transform: translateX(0) skewX(0deg);
     }
-
     100% {
-        transform: skewX(0deg);
+        transform: translateX(0) skewX(0deg);
     }
 }
 

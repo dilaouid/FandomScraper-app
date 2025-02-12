@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import HomePage from '@/pages/Home.vue'
+import CharactersPage from '@/pages/CharactersPage.vue'
+import CharacterPage from '@/pages/CharacterPage.vue'
 
 const routes: RouteRecordRaw[] = [
     {
@@ -8,12 +10,18 @@ const routes: RouteRecordRaw[] = [
         name: 'home',
         component: HomePage,
     },
-    /* {
+    {
         path: '/:wiki/characters',
         name: 'characters',
-        component: () => import('@/pages/CharactersPage.vue'),
+        component: CharactersPage,
         props: true,
-    }, */
+    },
+    {
+        path: '/:wiki/characters/:id',
+        name: 'character',
+        component: CharacterPage,
+        props: true,
+    }
 ]
 
 const router = createRouter({
