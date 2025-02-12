@@ -58,16 +58,28 @@ export const characterController = {
 
     // GET /:wiki/characters/id/:id
     findById: async (c: Context) => {
-        const { wiki, id } = c.req.param() as { wiki: TAvailableWikis, id: string }
-        const { base64, fields, withId = 'true' } = c.req.query()
+        try {
+            const { wiki, id } = c.req.param() as { wiki: TAvailableWikis, id: string }
+            const { base64, fields, withId = 'true', arrayFields } = c.req.query()
+            
+            const character = await scraper.findById(wiki, Number(id), {
+                fields: fields?.split(','),
+                base64: base64 === 'true',
+                withId: withId === 'true',
+                arrayFields: arrayFields?.split(',')
+            })
+            // if character is equal to [] return not found
+            if (character.length === 0) {
+                return c.notFound();
+            }
 
-        const character = await scraper.findById(wiki, Number(id), {
-            fields: fields?.split(','),
-            base64: base64 === 'true',
-            withId: withId === 'true'
-        })
-
-        return character ? c.json(character) : c.notFound()
+            return character ? c.json(character) : c.notFound()
+        } catch (error) {
+            console.log("XDDD");
+            
+            console.error(error);
+            return c.notFound();
+        }
     },
 
     // GET /:wiki/metadata
