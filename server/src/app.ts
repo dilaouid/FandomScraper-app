@@ -7,6 +7,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+const PORT = Number(process.env.PORT) || 3000;
 const ORIGIN = process.env.ORIGIN || 'http://localhost:5173'
 
 const app = new Hono()
@@ -27,6 +28,8 @@ app.use(
 
 app.route('/', router)
 
-serve(app, () => {
-  console.log('Server running on http://localhost:3000')
+serve({
+  fetch: app.fetch,
+  port: PORT
 })
+console.log(`🚀 Server running on port ${PORT}`)
