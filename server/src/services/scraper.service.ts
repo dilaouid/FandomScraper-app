@@ -84,9 +84,7 @@ export const scraper = {
             instance.setLanguage(options.lang)
         }
 
-        const query = instance.findById(id, {
-            base64: options.base64 ?? false
-        })
+        const query = instance.findById(id)
 
         if (options.fields?.length) {
             query.attr(options.fields.join(' '))

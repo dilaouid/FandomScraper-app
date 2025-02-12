@@ -114,8 +114,10 @@ watch(() => data.value, (newData) => {
 
                 <!-- Search and Filters -->
                 <div class="flex flex-wrap gap-4 items-center justify-between">
-                    <SearchBar v-model="searchTerm" @search="setSearch" placeholder="Search by name or ID..."
-                        class="flex-1 min-w-[300px]" />
+
+                    <!-- Je retire temporairement la barre de recherche, on verra plus tard -->
+                    <!-- <SearchBar v-model="searchTerm" @search="setSearch" placeholder="Search by name or ID..."
+                        class="flex-1 min-w-[300px]" /> -->
                     <FilterOptions v-model="selectedFields" :wiki-name="wikiName"
                         @update:modelValue="handleFieldsChange" />
                 </div>

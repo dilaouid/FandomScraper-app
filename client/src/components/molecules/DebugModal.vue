@@ -79,10 +79,7 @@ const scraper = new FandomScraper('${currentWiki}', { lang: '${lastCall.params.l
 
 // Get character with ID ${characterId}
 const character = await scraper
-  .findById(${characterId}, {
-    base64: false,
-    withId: true
-  })
+  .findById(${characterId})
   .attr('${lastCall.params.fields.join(' ')}')\
 ${lastCall.params.arrayFields.length ? `\n  .attrToArray('${lastCall.params.arrayFields.join(' ')}')` : ''}
   .exec();`)
