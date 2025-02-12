@@ -1,5 +1,7 @@
+<!-- CharacterDetail.vue -->
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+
 import {
     Eye, List,
     User, Heart, Cake, MapPin,
@@ -48,27 +50,6 @@ const getIcon = (field: string): IconComponent => {
     return icons[field] || User
 }
 
-const getColor = (field: string): string => {
-    const colors: Record<string, string> = {
-        name: 'bg-blue-500/20 text-blue-200',
-        age: 'bg-green-500/20 text-green-200',
-        gender: 'bg-pink-500/20 text-pink-200',
-        status: 'bg-purple-500/20 text-purple-200',
-        affiliation: 'bg-yellow-500/20 text-yellow-200',
-        occupations: 'bg-orange-500/20 text-orange-200',
-        relatives: 'bg-indigo-500/20 text-indigo-200',
-        manga: 'bg-red-500/20 text-red-200',
-        episode: 'bg-cyan-500/20 text-cyan-200',
-        nationality: 'bg-emerald-500/20 text-emerald-200',
-        kanji: 'bg-violet-500/20 text-violet-200',
-        quote: 'bg-rose-500/20 text-rose-200',
-        weapon: 'bg-amber-500/20 text-amber-200',
-        birthplace: 'bg-teal-500/20 text-teal-200',
-        birthday: 'bg-lime-500/20 text-lime-200'
-    }
-    return colors[field] || 'bg-gray-500/20 text-gray-200'
-}
-
 const formatFieldName = (field: string): string => {
     return field.replace(/([A-Z])/g, ' $1')
         .replace(/^./, str => str.toUpperCase())
@@ -86,59 +67,101 @@ onMounted(() => {
 
     observer.observe(detailRef.value)
 })
-</script>
 
+const isCompactField = computed(() => {
+    const compactFields = ['birthday', 'height', 'weight', 'age', 'gender', 'nationality'];
+    return compactFields.includes(props.field);
+});
+
+const cardSpan = computed(() => {
+    if (!props.value) return 'col-span-1';
+    if (isCompactField.value) return 'col-span-1';
+    if (Array.isArray(props.value) && props.value.length > 2) return 'col-span-2';
+    return 'col-span-1';
+});
+</script>
 <template>
-    <div v-if="!requestedButEmpty" ref="detailRef" class="relative group rounded-lg transition-all duration-500 transform" :class="[
-        getColor(field),
+    <div v-if="!requestedButEmpty" ref="detailRef" :class="[
+        cardSpan,
+        'group transition-all duration-500 ease-in-out',
         {
             'opacity-75 hover:opacity-100': !isActive,
             'translate-x-0 opacity-100': isVisible,
             '-translate-x-4 opacity-0': !isVisible
         }
     ]">
-        <!-- Glow effect -->
-        <div
-            class="absolute inset-0 rounded-lg bg-gradient-to-r from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-        <div class="relative p-5 backdrop-blur-sm">
+        <div class="h-full relative rounded-lg bg-gradient-to-br from-red-950/20 to-black/40 
+                  backdrop-blur-sm overflow-hidden border border-red-900/20 
+                  hover:border-red-800/30 transition-all duration-300
+                  group-hover:shadow-lg group-hover:shadow-red-900/10">
             <!-- Header -->
-            <div class="flex items-center justify-between mb-3">
+            <div class="p-4 flex items-center justify-between border-b border-red-900/10">
                 <div class="flex items-center gap-3">
-                    <component :is="getIcon(field)" class="w-5 h-5 transition-transform group-hover:scale-110" />
-                    <h3 class="font-medium tracking-wide">{{ formatFieldName(field) }}</h3>
+                    <div class="p-1.5 rounded-md bg-red-500/10 group-hover:bg-red-500/20 
+                        transition-colors duration-300">
+                        <component :is="getIcon(field)" class="w-4 h-4 text-red-300/80 group-hover:text-red-300 
+                               transition-colors duration-300" />
+                    </div>
+                    <h3 class="text-sm font-medium text-white/80 group-hover:text-white/90">
+                        {{ formatFieldName(field) }}
+                    </h3>
                 </div>
 
-                <!-- Controls -->
-                <div class="flex items-center gap-2">
-                    <button class="p-2 rounded hover:bg-white/10 transition-colors" @click="$emit('toggle-visibility')"
-                        :class="{ 'text-red-400': isActive }">
-                        <Eye class="w-4 h-4" />
+                <div class="flex items-center gap-1">
+                    <button class="p-1.5 rounded-md hover:bg-red-500/20 transition-colors"
+                        :class="{ 'bg-red-500/20 text-red-300': isActive }" @click="$emit('toggle-visibility')">
+                        <Eye class="w-3.5 h-3.5 text-red-200/70" />
                     </button>
-                    <button class="p-2 rounded hover:bg-white/10 transition-colors" @click="$emit('toggle-array')"
-                        :class="{ 'text-red-400': isArray }">
-                        <List class="w-4 h-4" />
+                    <button v-if="!isCompactField" class="p-1.5 rounded-md hover:bg-red-500/20 transition-colors"
+                        :class="{ 'bg-red-500/20 text-red-300': isArray }" @click="$emit('toggle-array')">
+                        <List class="w-3.5 h-3.5 text-red-200/70" />
                     </button>
                 </div>
             </div>
 
-            <!-- Content -->
-            <div v-if="value" :class="{ 'pl-8': isArray }" class="space-y-2">
-                <template v-if="Array.isArray(value)">
-                    <div v-for="(item, index) in value" :key="index"
-                        class="p-2 rounded bg-black/20 backdrop-blur-sm border border-white/5 transform transition-all hover:translate-x-1">
-                        {{ item }}
+            <!-- Content avec animation -->
+            <div class="p-4" :class="{ 'space-y-2': Array.isArray(value) && value.length > 1 }">
+                <template v-if="value && (isActive || isArray)">
+                    <TransitionGroup v-if="Array.isArray(value) && !isCompactField" name="list" tag="div"
+                        class="grid gap-2" :class="{
+                            'grid-cols-2': value.length > 3,
+                            'grid-cols-1': value.length <= 3
+                        }">
+                        <div v-for="(item, index) in value" :key="index" class="px-3 py-2 rounded-md bg-black/20 text-sm text-white/80
+                          border border-red-900/10 hover:border-red-800/20
+                          transition-all duration-300 hover:translate-x-1
+                          hover:bg-black/30">
+                            {{ item }}
+                        </div>
+                    </TransitionGroup>
+
+                    <div v-else class="text-white/90">
+                        {{ Array.isArray(value) ? value[0] : value }}
                     </div>
                 </template>
-                <template v-else>
-                    <div class="p-2 rounded bg-black/20 backdrop-blur-sm border border-white/5">
-                        {{ value }}
-                    </div>
-                </template>
-            </div>
-            <div v-else class="text-white/40 italic pl-8">
-                Hidden data
+                <div v-else class="flex items-center gap-2 text-white/40 text-sm">
+                    <Eye class="w-3.5 h-3.5" />
+                    <span>Hidden</span>
+                </div>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+.list-move,
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.3s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+    opacity: 0;
+    transform: translateX(-30px);
+}
+
+.list-leave-active {
+    position: absolute;
+}
+</style>

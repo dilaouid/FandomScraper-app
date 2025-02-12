@@ -1,9 +1,11 @@
+<!-- CharacterPage.vue -->
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useWikiStore } from '@/stores/useWikiStore'
 import { useWikiMetadata } from '@/composables/useWikiMetadata'
 import { useCharacterDetails } from '@/composables/useCharacterDetails'
+import { useCustomToast } from '@/composables/useCustomToast'
 
 import PageLayout from '@/components/templates/PageLayout.vue'
 import CharacterImageGallery from '@/components/molecules/CharacterImageGallery.vue'
@@ -12,13 +14,16 @@ import BackButton from '@/components/atoms/BackButton.vue'
 import Badge from '@/components/ui/badge/Badge.vue'
 import CommonFieldCard from '@/components/atoms/CommonFieldCard.vue'
 import CharacterNotFound from '@/components/molecules/CharacterNotFound.vue'
+import { TransitionGroup } from 'vue'
 
 import { ExternalLink, User, Heart, Cake, MapPin, Briefcase, Users, Book, Film, Flag, Type, Quote, Sword, Activity } from 'lucide-vue-next'
 import type { IconComponent } from '@/types'
 
 const route = useRoute()
-const wikiName = route.params.wiki as string
 const store = useWikiStore()
+const { toast } = useCustomToast()
+
+const wikiName = route.params.wiki as string
 
 const { id } = route.params as { id: string }
 
@@ -87,8 +92,21 @@ async function handleToggleView(field: string) {
     if (!character.value?.data?.[field]) {
         emptyRequestedFields.value.push(field)
         fields.value = fields.value.filter(f => f !== field)
+
+        // Afficher le toast ici
+        toast.error(`No data available for ${formatFieldName(field)}`, {
+            description: 'The field will remain hidden.',
+            action: {
+                label: 'Got it',
+                onClick: () => {
+                    // Optionnel : action supplémentaire
+                }
+            }
+        })
     }
 }
+
+
 
 
 const getStatusColor = (status?: string) => {
@@ -220,13 +238,16 @@ const formatFieldName = (field: string): string =>
                         </div>
                     </div>
 
-                    <!-- Right Column -->
-                    <div class="grid gap-4">
-                        <CharacterDetail v-for="field in additionalFields" :key="field" :field="field"
-                            :value="character?.data?.[field]" :is-array="arrayFields.includes(field)"
-                            :is-active="fields.includes(field)"
-                            :requested-but-empty="emptyRequestedFields.includes(field)"
-                            @toggle-visibility="handleToggleView(field)" @toggle-array="handleToggleArray(field)" />
+                    <!-- Right Column - Modified Grid Layout -->
+                    <div class="grid gap-4 auto-rows-min">
+                        <TransitionGroup name="card" tag="div"
+                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-min">
+                            <CharacterDetail v-for="field in additionalFields" :key="field" :field="field"
+                                :value="character?.data?.[field]" :is-array="arrayFields.includes(field)"
+                                :is-active="fields.includes(field)"
+                                :requested-but-empty="emptyRequestedFields.includes(field)"
+                                @toggle-visibility="handleToggleView(field)" @toggle-array="handleToggleArray(field)" />
+                        </TransitionGroup>
                     </div>
                 </div>
             </template>
@@ -237,5 +258,21 @@ const formatFieldName = (field: string): string =>
 <style scoped>
 .font-japanese {
     font-family: "Noto Sans JP", sans-serif;
+}
+
+.card-move,
+.card-enter-active,
+.card-leave-active {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-enter-from,
+.card-leave-to {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.card-leave-active {
+    position: absolute;
 }
 </style>
