@@ -14,8 +14,8 @@ router.get('/:wiki/count', handlers.getCount)
 router.get('/available-wikis', handlers.getAvailableWikis)
 
 // FandomPersonalScraper routes
-router.post('/personal-wiki/characters', handlers.findAllPersonal)
+/* router.post('/personal-wiki/characters', handlers.findAllPersonal)
 router.post('/personal-wiki/characters/name/:name', handlers.findByNamePersonal)
-router.post('/personal-wiki/characters/id/:id', handlers.findByIdPersonal)
+router.post('/personal-wiki/characters/id/:id', handlers.findByIdPersonal) */
 
 export { router }

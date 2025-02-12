@@ -12,9 +12,14 @@ export const characterController = {
         const ignore = query.ignore?.split(',') || []
         ignore.push("User:Joaquim7210")
 
+        const limit = Number(query.limit) || 12
+        if (limit > 12) {
+            return c.json({ error: 'Limit must be less than or equal to 12' }, 400)
+        }
+
         const options: Partial<ScraperOptions> = {
             base64: query.base64 === 'true',
-            limit: Number(query.limit) || 100,
+            limit,
             offset: Number(query.offset) || 0,
             fields: query.fields?.split(','),
             arrayFields: query.arrayFields?.split(','),
