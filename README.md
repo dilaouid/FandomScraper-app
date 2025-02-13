@@ -15,7 +15,7 @@ A **proof-of-concept** demonstration showcasing the capabilities of the [FandomS
   - [Prerequisites](#prerequisites)
   - [Setup](#setup)
 - [Usage](#usage)
-- [Project Structure](#project-structure)
+- [Project structure](#project-structure)
 - [Tech Stack](#tech-stack)
 - [Contributing](#contributing)
 - [License](#license)
@@ -88,9 +88,9 @@ This project leverages a modern monorepo setup, making it easy to manage both th
 
 Once running, the application allows you to:
 
-- **Browse Wikis:** View a dynamic list of all supported fandom wikis.
-- **See Character Counts:** For any selected wiki, see the number of characters available per language.
-- **Explore Character Details:** Click on a character to view detailed information. Use the toggle option to control how much data is displayed.
+- **Browse wikis:** View a dynamic list of all supported fandom wikis.
+- **See character counts:** For any selected wiki, see the number of characters available per language.
+- **Explore character details:** Click on a character to view detailed information. Use the toggle option to control how much data is displayed.
 
 Additionally, an integrated debug mode on the client side gives you insight into how queries are constructed and executed using the FandomScraper library.
 
@@ -118,7 +118,7 @@ This monorepo layout ensures that both applications share common configurations 
 - **Bundler:** Vite
 - **State Management:** Pinia (with persisted state plugin)
 - **Routing:** Vue Router
-- **Data Fetching:** @tanstack/vue-query
+- **Data fetching:** @tanstack/vue-query
 - **Styling:** Tailwind CSS, Radix UI, shadcn-vue, etc.
 
 ### Back-End
