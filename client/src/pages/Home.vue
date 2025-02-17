@@ -31,11 +31,11 @@ const handleWikiSelect = (wiki: Wiki) => {
             <!-- Fond de base -->
             <div class="fixed inset-0 bg-[#1a0f0f] overflow-hidden">
                 <div class="matrix-rain" aria-hidden="true">
-                    <div v-for="n in 60" :key="n" class="matrix-column" :style="{
-                        left: `${(n - 1) * 1.67}%`,
-                        animationDelay: `-${Math.random() * 10}s`
+                    <div v-for="n in 30" :key="n" class="matrix-column" :style="{
+                        left: `${(n - 1) * 3.33}%`,
+                        animationDelay: `-${(n % 5) * 2}s`
                     }">
-                        働 き す ぎ て 死 ぬ な 今 日 も 頑 張 ろ う 運 命 を 変 え る
+                        働 き す ぎ て 死 ぬ な 今 日 も 頑 張 ろ う
                     </div>
                 </div>
                 <!-- Animated clouds -->
@@ -224,23 +224,24 @@ const handleWikiSelect = (wiki: Wiki) => {
     transform: translateZ(0); /* Hardware acceleration */
 }
 
-/* Reduced animation complexity */
 @keyframes glitch {
-    0%, 100% { transform: translateX(0) skewX(0deg) translateZ(0); }
-    25% { transform: translateX(2px) skewX(2deg) translateZ(0); }
-    75% { transform: translateX(-2px) skewX(-2deg) translateZ(0); }
+    0% { transform: translate3d(0, 0, 0); }
+    25% { transform: translate3d(2px, 0, 0); }
+    75% { transform: translate3d(-2px, 0, 0); }
+    100% { transform: translate3d(0, 0, 0); }
 }
 
 .typing-effect {
     opacity: 0;
-    transform: translateY(1rem) translateZ(0);
+    transform: translate3d(0, 1rem, 0);
     animation: typeIn 0.5s ease forwards;
+    will-change: transform, opacity;
 }
 
 @keyframes typeIn {
     to {
         opacity: 1;
-        transform: translateY(0) translateZ(0);
+        transform: translate3d(0, 0, 0);
     }
 }
 </style>
