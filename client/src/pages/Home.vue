@@ -30,14 +30,6 @@ const handleWikiSelect = (wiki: Wiki) => {
         <template #background>
             <!-- Fond de base -->
             <div class="fixed inset-0 bg-[#1a0f0f] overflow-hidden">
-                <div class="matrix-rain" aria-hidden="true">
-                    <div v-for="n in 30" :key="n" class="matrix-column" :style="{
-                        left: `${(n - 1) * 3.33}%`,
-                        animationDelay: `-${(n % 5) * 2}s`
-                    }">
-                        働 き す ぎ て 死 ぬ な 今 日 も 頑 張 ろ う
-                    </div>
-                </div>
                 <!-- Animated clouds -->
                 <div class="cloud-container">
                     <div class="cloud cloud-1" />
@@ -96,53 +88,6 @@ const handleWikiSelect = (wiki: Wiki) => {
 </template>
 
 <style>
-.matrix-rain {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    overflow: hidden;
-    opacity: 0.08;
-}
-
-.matrix-column {
-    position: absolute;
-    top: -150%;
-    color: #22c55e;
-    font-size: 14px;
-    writing-mode: vertical-rl;
-    white-space: pre;
-    user-select: none;
-    text-align: center;
-    line-height: 1;
-    animation: matrix-fall 8s linear infinite;
-    text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
-    font-family: "MS Mincho", "Yu Mincho", serif;
-    transform: translateZ(0);
-}
-
-/* Reduced number of matrix columns variations for better performance */
-.matrix-column:nth-child(even) {
-    color: #11a34b;
-    font-size: 12px;
-    animation-duration: 10s;
-}
-
-.matrix-column:nth-child(3n) {
-    color: #dc2626;
-    font-size: 16px;
-    text-shadow: 0 0 8px rgba(220, 38, 38, 0.6);
-    animation-duration: 12s;
-}
-
-@keyframes matrix-fall {
-    from {
-        transform: translateY(-100%) translateZ(0);
-    }
-    to {
-        transform: translateY(300vh) translateZ(0);
-    }
-}
-
 .bg-pattern {
     background-image:
         linear-gradient(45deg, #ff000015 25%, transparent 25%),
