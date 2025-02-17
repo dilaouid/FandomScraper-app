@@ -4,6 +4,10 @@ A **proof-of-concept** demonstration showcasing the capabilities of the [FandomS
 
 [![License: GPL](https://img.shields.io/github/license/dilaouid/FandomScraper-app)](LICENSE)
 [![Turbo Repo](https://img.shields.io/badge/TurboRepo-powered-blue.svg)](https://turbo.build/repo)
+![GitHub last commit](https://img.shields.io/github/last-commit/dilaouid/FandomScraper-app)
+![GitHub repo size](https://img.shields.io/github/repo-size/dilaouid/FandomScraper-app)
+![GitHub top language](https://img.shields.io/github/languages/top/dilaouid/FandomScraper-app)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/43aa5e3c-4b06-4882-8de6-3b197b28f2b9/deploy-status)](https://app.netlify.com/sites/fandomscraper/deploys)
 
 ---
 
