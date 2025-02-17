@@ -117,10 +117,11 @@ const handleWikiSelect = (wiki: Wiki) => {
     animation: matrix-fall 8s linear infinite;
     text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
     font-family: "MS Mincho", "Yu Mincho", serif;
-    will-change: transform;
+    transform: translateZ(0);
 }
 
-.matrix-column:nth-child(2n) {
+/* Reduced number of matrix columns variations for better performance */
+.matrix-column:nth-child(even) {
     color: #11a34b;
     font-size: 12px;
     animation-duration: 10s;
@@ -133,26 +134,14 @@ const handleWikiSelect = (wiki: Wiki) => {
     animation-duration: 12s;
 }
 
-.matrix-column:nth-child(5n) {
-    animation-duration: 9s;
-    font-size: 18px;
-}
-
-.matrix-column:nth-child(7n) {
-    animation-duration: 11s;
-    opacity: 0.9;
-}
-
 @keyframes matrix-fall {
     from {
-        transform: translateY(-100%);
+        transform: translateY(-100%) translateZ(0);
     }
-
     to {
-        transform: translateY(300vh);
+        transform: translateY(300vh) translateZ(0);
     }
 }
-
 
 .bg-pattern {
     background-image:
@@ -162,6 +151,7 @@ const handleWikiSelect = (wiki: Wiki) => {
         linear-gradient(-45deg, transparent 75%, #ff000015 75%);
     background-size: 20px 20px;
     background-position: 0 0, 10px 0, 10px -10px, 0px 10px;
+    transform: translateZ(0);
 }
 
 .cloud-container {
@@ -169,6 +159,7 @@ const handleWikiSelect = (wiki: Wiki) => {
     width: 100%;
     height: 100%;
     z-index: 1;
+    pointer-events: none; /* Improve performance by ignoring mouse events */
 }
 
 .cloud {
@@ -179,6 +170,7 @@ const handleWikiSelect = (wiki: Wiki) => {
     background-size: contain;
     background-repeat: no-repeat;
     opacity: 0.1;
+    transform: translateZ(0);
 }
 
 .cloud-1 {
@@ -199,99 +191,56 @@ const handleWikiSelect = (wiki: Wiki) => {
 }
 
 @keyframes cloudFloat {
-    0% {
-        transform: translateX(-100%);
+    from {
+        transform: translateX(-100%) translateZ(0);
     }
-
-    100% {
-        transform: translateX(100vw);
+    to {
+        transform: translateX(100vw) translateZ(0);
     }
 }
 
 .scale-out {
-    transform: scale(0.8);
+    transform: scale(0.8) translateZ(0);
     opacity: 0.5;
     filter: blur(2px);
     transition: all 0.5s ease-in-out;
 }
-</style>
 
-<style scoped>
-.glitch-container {
-    position: relative;
-    overflow: hidden; /* Empêche le débordement */
-    padding: 0.1em; /* Un peu de padding pour éviter que le glitch soit coupé */
-}
-
+/* Scoped styles with performance optimizations */
 .glitch {
     position: relative;
     text-shadow: 0.05em 0 0 #ff0000, -0.025em -0.05em 0 #0000ff;
     animation: glitch 725ms infinite;
-    display: inline-block; /* Pour contenir l'effet */
+    display: inline-block;
+    transform: translateZ(0); /* Hardware acceleration */
 }
 
 .glitch::before,
 .glitch::after {
     content: attr(data-text);
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); /* Clip path complet */
+    inset: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    transform: translateZ(0); /* Hardware acceleration */
 }
 
-.glitch::before {
-    animation: glitch 500ms infinite;
-    clip-path: polygon(30% 0, 70% 0, 70% 65%, 30% 65%);
-    text-shadow: -0.05em 0 #ff0000;
-    transform-origin: center;
-}
-
-.glitch::after {
-    animation: glitch 375ms infinite;
-    clip-path: polygon(15% 0, 85% 0, 85% 65%, 15% 65%);
-    text-shadow: 0.05em 0 #0000ff;
-    transform-origin: center;
-}
-
+/* Reduced animation complexity */
 @keyframes glitch {
-    0% {
-        transform: translateX(0) skewX(0deg);
-    }
-    5% {
-        transform: translateX(2px) skewX(2deg);
-    }
-    10% {
-        transform: translateX(-2px) skewX(-2deg);
-    }
-    15% {
-        transform: translateX(0) skewX(0deg);
-    }
-    100% {
-        transform: translateX(0) skewX(0deg);
-    }
+    0%, 100% { transform: translateX(0) skewX(0deg) translateZ(0); }
+    25% { transform: translateX(2px) skewX(2deg) translateZ(0); }
+    75% { transform: translateX(-2px) skewX(-2deg) translateZ(0); }
 }
 
 .typing-effect {
     opacity: 0;
-    transform: translateY(1rem);
+    transform: translateY(1rem) translateZ(0);
     animation: typeIn 0.5s ease forwards;
 }
 
-.delay-1 {
-    animation-delay: 0.8s;
-}
-
 @keyframes typeIn {
-    from {
-        opacity: 0;
-        transform: translateY(1rem);
-    }
-
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) translateZ(0);
     }
 }
 </style>

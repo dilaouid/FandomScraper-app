@@ -56,9 +56,11 @@ const handleMouseLeave = () => {
     overflow: hidden;
     background: #1a0f0f;
     cursor: pointer;
-    transition: all 0.3s ease;
-    filter: grayscale(0.7) brightness(0.7) blur(1px);
+    filter: grayscale(.7) brightness(.8) blur(1px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0.7;
     box-shadow: 0 4px 20px rgba(139, 0, 0, 0.15);
+    will-change: transform, box-shadow;
 }
 
 /* Dégradé animé existant */
@@ -113,9 +115,6 @@ const handleMouseLeave = () => {
     pointer-events: none;
 }
 
-
-
-
 .wiki-card.is-hovered {
     filter: grayscale(0) brightness(1) blur(0);
     box-shadow: 0 8px 30px rgba(139, 0, 0, 0.4);
@@ -158,10 +157,10 @@ const handleMouseLeave = () => {
     position: relative;
     overflow: hidden;
 }
-
 .card-inner img {
     transform: scale(1.05);
     transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
 }
 
 .wiki-card.is-hovered .card-inner img {
