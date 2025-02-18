@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import AppImage from '../atoms/AppImage.vue'
 import type { Wiki } from '@/types'
 
 interface Props {
     wiki: Wiki
-    isSelected: boolean
+    delay?: number
 }
 
 const props = defineProps<Props>()
@@ -14,7 +14,14 @@ const emit = defineEmits<{
 }>()
 
 const isHovered = ref(false)
+const isVisible = ref(false)
 
+// Animation delay style for card entry
+const animationStyle = computed(() => ({
+    '--animation-delay': `${props.delay || 0}s`,
+}))
+
+// Handle interactions
 const handleMouseEnter = () => {
     isHovered.value = true
 }
@@ -22,27 +29,111 @@ const handleMouseEnter = () => {
 const handleMouseLeave = () => {
     isHovered.value = false
 }
+
+// Mount animation with IntersectionObserver for performance
+import { onMounted } from 'vue'
+
+onMounted(() => {
+    // For browsers that support IntersectionObserver
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    requestAnimationFrame(() => {
+                        isVisible.value = true
+                    })
+                    observer.unobserve(entry.target)
+                }
+            })
+        }, { threshold: 0.1 })
+        
+        const element = document.getElementById(`wiki-card-${props.wiki.id}`)
+        if (element) observer.observe(element)
+    } else {
+        // Fallback for browsers without IntersectionObserver
+        isVisible.value = true
+    }
+})
 </script>
 
 <template>
-    <div class="wiki-card-container" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave"
-        @click="$emit('select', wiki)">
-        <div class="wiki-card" :class="{ 'is-hovered': isHovered }">
-            <div class="card-inner">
-                <AppImage :src="wiki.imageUrl" :alt="wiki.name" :width="500" :height="750" />
-
-                <div class="gradient-overlay" :class="{ 'active': isHovered }">
-                    <div class="card-content select-none">
-                        <h2 class="card-title">{{ wiki.name }}</h2>
-                        <p class="card-description">Explore the characters →</p>
+    <div 
+        :id="`wiki-card-${wiki.id}`"
+        class="wiki-card-container transform-gpu"
+        :class="{ 'card-visible': isVisible }" 
+        :style="animationStyle"
+        @mouseenter="handleMouseEnter" 
+        @mouseleave="handleMouseLeave"
+        @click="$emit('select', wiki)"
+    >
+        <div 
+            class="wiki-card relative rounded-lg overflow-hidden bg-zinc-900 shadow-lg transition-all duration-300"
+            :class="{ 
+                'is-hovered': isHovered
+            }"
+        >
+            <div 
+                class="border-glow absolute -inset-px rounded-lg z-30 pointer-events-none overflow-hidden"
+                :class="{ 'border-glow-active': isHovered }"
+            >
+                <div class="border-line top"></div>
+                <div class="border-line right"></div>
+                <div class="border-line bottom"></div>
+                <div class="border-line left"></div>
+                
+                <!-- Pulsing glow frame -->
+                <div class="pulse-frame"></div>
+            </div>
+            
+            <!-- Card interior -->
+            <div class="card-inner relative aspect-[2/3] overflow-hidden">
+                <!-- Image with optimization -->
+                <div class="absolute inset-0 w-full h-full">
+                    <AppImage 
+                        :src="wiki.imageUrl" 
+                        :alt="wiki.name" 
+                        :width="500" 
+                        :height="750" 
+                        class="w-full h-full object-cover transition-transform duration-700 ease-out"
+                        :class="{ 'scale-110': isHovered }"
+                    />
+                </div>
+                
+                <!-- Always visible wiki name with gradient background -->
+                <div class="wiki-name-container absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent py-3 px-3">
+                    <div class="wiki-name text-white text-center font-medium truncate">
+                        {{ wiki.name }}
                     </div>
                 </div>
-
-                <div class="border-effect" :class="{ 'active': isHovered }">
-                    <div class="border-line border-top"></div>
-                    <div class="border-line border-right"></div>
-                    <div class="border-line border-bottom"></div>
-                    <div class="border-line border-left"></div>
+                
+                <!-- Hover overlay -->
+                <div 
+                    class="absolute inset-0 bg-black/70 opacity-0 transition-opacity duration-300 z-10"
+                    :class="{ 'opacity-100': isHovered }"
+                >
+                    <!-- Interactive particles on hover -->
+                    <div v-if="isHovered" class="interactive-particles absolute inset-0 pointer-events-none overflow-hidden">
+                        <div v-for="n in 15" :key="`particle-${n}`" 
+                             class="reactive-particle"
+                             :style="`--index: ${n}; --total: 15;`">
+                        </div>
+                    </div>
+                    
+                    <!-- Centered content on hover -->
+                    <div class="absolute inset-0 flex flex-col items-center justify-center p-4">
+                        <h2 class="text-xl sm:text-2xl font-bold text-white mb-4 text-center transform opacity-0 scale-90 transition-all duration-300"
+                            :class="{ 'opacity-100 scale-100': isHovered }">
+                            {{ wiki.name }}
+                        </h2>
+                        
+                        <div class="explore-button bg-red-600/20 border border-red-500/50 rounded-md py-2 px-4 flex items-center transition-all duration-300 transform opacity-0 scale-90 group"
+                            :class="{ 'opacity-100 scale-100': isHovered }">
+                            <span class="text-white group-hover:text-red-200 transition-colors">Explore the characters</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 text-red-500 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -50,242 +141,226 @@ const handleMouseLeave = () => {
 </template>
 
 <style scoped>
+/*  card styling */
 .wiki-card {
-    position: relative;
-    border-radius: 0.75rem;
-    overflow: hidden;
-    background: #1a0f0f;
-    cursor: pointer;
-    filter: grayscale(.7) brightness(.8) blur(1px);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    opacity: 0.7;
-    box-shadow: 0 4px 20px rgba(139, 0, 0, 0.15);
-    will-change: transform, box-shadow;
-}
-
-/* Dégradé animé existant */
-.wiki-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg,
-            rgba(139, 0, 0, 0.2) 0%,
-            transparent 25%,
-            transparent 75%,
-            rgba(139, 0, 0, 0.2) 100%);
-    animation: gradientMove 8s linear infinite;
-    z-index: 1;
-    mix-blend-mode: soft-light;
-    pointer-events: none;
-}
-
-/* Pattern de points */
-.wiki-card::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 200px;
-    height: 200px;
-    background-image: radial-gradient(circle,
-            rgba(255, 69, 0, 0.4) 1px,
-            transparent 1px);
-    background-position: 0% 0%;
-    background-size: 6px 6px;
-    mask-image: linear-gradient(135deg,
-            transparent 50%,
-            rgba(0, 0, 0, 0.1) 60%,
-            rgba(0, 0, 0, 0.2) 70%,
-            rgba(0, 0, 0, 0.4) 80%,
-            rgba(0, 0, 0, 1) 90%
-        );
-    -webkit-mask-image: linear-gradient(135deg,
-            transparent 50%,
-            rgba(0, 0, 0, 0.1) 60%,
-            rgba(0, 0, 0, 0.2) 70%,
-            rgba(0, 0, 0, 0.4) 80%,
-            rgba(0, 0, 0, 1) 90%);
-    animation: dotsMove 12s linear infinite;
-    z-index: 2;
-    mix-blend-mode: screen;
-    opacity: 0.8;
-    pointer-events: none;
-}
-
-.wiki-card.is-hovered {
-    filter: grayscale(0) brightness(1) blur(0);
-    box-shadow: 0 8px 30px rgba(139, 0, 0, 0.4);
-    transform: translateY(-2px);
-}
-
-.wiki-card.is-hovered::after {
-    opacity: 1;
-    animation-duration: 8s;
-    background-image: radial-gradient(circle,
-            rgba(255, 69, 0, 0.5) 1px,
-            transparent 1px);
-}
-
-@keyframes dotsMove {
-    0% {
-        background-position: 0% 0%;
-    }
-
-    100% {
-        background-position: 100% 100%;
-    }
-}
-
-@keyframes gradientMove {
-    0% {
-        background-position: 0% 0%;
-    }
-
-    50% {
-        background-position: 100% 100%;
-    }
-
-    100% {
-        background-position: 0% 0%;
-    }
-}
-
-.card-inner {
-    position: relative;
-    overflow: hidden;
-}
-.card-inner img {
-    transform: scale(1.05);
-    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateZ(0);
     will-change: transform;
+    backface-visibility: hidden;
+    filter: brightness(0.8) saturate(0.7);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    cursor: pointer;
 }
 
-.wiki-card.is-hovered .card-inner img {
-    transform: scale(1.15);
+/* Card hover state */
+.wiki-card.is-hovered {
+    filter: brightness(1.1) saturate(1.2);
+    box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.5);
+    transform: translateY(-6px) scale(1.02);
+    z-index: 10;
 }
 
+/* Always visible wiki name */
+.wiki-name-container {
+    z-index: 5;
+    transition: all 0.3s ease;
+}
 
-/* Gradient Overlay */
-.gradient-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top,
-            rgba(26, 15, 15, 0.95) 0%,
-            rgba(26, 15, 15, 0.8) 20%,
-            transparent 60%);
+.wiki-card.is-hovered .wiki-name-container {
     opacity: 0;
-    transform: translateY(20%);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(20px);
 }
 
-.gradient-overlay.active {
+/* Entrance animation */
+.wiki-card-container {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    transition-delay: var(--animation-delay);
+}
+
+.card-visible {
     opacity: 1;
     transform: translateY(0);
 }
 
-/* Animated Borders */
-.border-effect {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
+/*  glow effect */
+.border-glow {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.border-glow-active {
+    opacity: 1;
 }
 
 .border-line {
     position: absolute;
-    background: linear-gradient(90deg,
-            rgba(255, 0, 0, 0) 0%,
-            rgba(255, 0, 0, 0.8) 50%,
-            rgba(255, 0, 0, 0) 100%);
+    background: linear-gradient(90deg, transparent, #ff3030, transparent);
+    box-shadow: 0 0 15px 3px rgba(255, 0, 0, 0.7);
 }
 
-/* Horizontal lines */
-.border-top,
-.border-bottom {
+.top, .bottom {
+    height: 3px;
+    left: 0;
     width: 100%;
-    height: 4px;
-    transform: scaleX(0);
 }
 
-/* Vertical lines */
-.border-left,
-.border-right {
-    width: 4px;
+.left, .right {
+    width: 3px;
+    top: 0;
     height: 100%;
-    transform: scaleY(0);
 }
 
-/* Initial positions and transform origins */
-.border-top {
+.top {
     top: 0;
-    left: 0;
-    transform-origin: left;
-    transition: transform 0.4s ease;
+    animation: moveX 3s infinite;
 }
 
-.border-right {
-    top: 0;
+.right {
     right: 0;
-    transform-origin: top;
-    transition: transform 0.4s ease 0.4s;
+    background: linear-gradient(180deg, transparent, #ff3030, transparent);
+    animation: moveY 3s infinite;
+    animation-delay: 0.75s;
 }
 
-.border-bottom {
+.bottom {
     bottom: 0;
-    right: 0;
-    transform-origin: right;
-    transition: transform 0.4s ease 0.8s;
+    animation: moveXReverse 3s infinite;
+    animation-delay: 1.5s;
 }
 
-.border-left {
-    bottom: 0;
+.left {
     left: 0;
-    transform-origin: bottom;
-    transition: transform 0.4s ease 1.2s;
+    background: linear-gradient(180deg, transparent, #ff3030, transparent);
+    animation: moveYReverse 3s infinite;
+    animation-delay: 2.25s;
 }
 
-/* Active state */
-.border-effect.active .border-line {
-    transform: scale(1);
+@keyframes moveX {
+    0%, 100% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    40%, 60% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
 }
 
-/* Card Content */
-.card-content {
+@keyframes moveXReverse {
+    0%, 100% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    40%, 60% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+@keyframes moveY {
+    0%, 100% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    40%, 60% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes moveYReverse {
+    0%, 100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    40%, 60% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+/* Pulsing glow frame */
+.pulse-frame {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 2rem;
-    transform: translateY(20px);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid rgba(255, 48, 48, 0.3);
+    box-shadow: 
+        inset 0 0 15px 2px rgba(255, 48, 48, 0.15),
+        0 0 15px 2px rgba(255, 48, 48, 0.15);
+    animation: pulseBorder 3s infinite;
+}
+
+@keyframes pulseBorder {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.interactive-particles {
+    border-radius: inherit;
+    z-index: 0;
+}
+
+.reactive-particle {
+    --angle: calc(360deg / var(--total) * var(--index));
+    --duration: calc(0.5s + (var(--index) / var(--total)) * 1.5s);
+    --delay: calc(var(--index) * 0.1s);
+    
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #ff5252;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
     opacity: 0;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px 2px rgba(255, 48, 48, 0.6);
+    
+    animation: particleExpand var(--duration) ease-out infinite;
+    animation-delay: var(--delay);
 }
 
-.gradient-overlay.active .card-content {
-    transform: translateY(0);
-    opacity: 1;
+@keyframes particleExpand {
+    0% {
+        opacity: 0.8;
+        transform: 
+            translate(-50%, -50%) 
+            rotate(var(--angle)) 
+            translateY(0px);
+    }
+    100% {
+        opacity: 0;
+        transform: 
+            translate(-50%, -50%) 
+            rotate(var(--angle)) 
+            translateY(calc(50% + 20px));
+    }
 }
 
-.card-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: white;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+.explore-button {
+    transition: all 0.2s ease;
 }
 
-.card-description {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.9rem;
-    transform: translateX(-20px);
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
-}
-
-.gradient-overlay.active .card-description {
-    transform: translateX(0);
-    opacity: 1;
+.explore-button:hover {
+    background-color: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 15px 2px rgba(239, 68, 68, 0.2);
 }
 </style>

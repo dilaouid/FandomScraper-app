@@ -4,7 +4,6 @@ import type { Wiki } from '@/types'
 
 interface Props {
     wikis: Wiki[]
-    selectedWikiId: string | null
 }
 
 defineProps<Props>()
@@ -15,8 +14,13 @@ defineEmits<{
 </script>
 
 <template>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4">
-        <WikiCard v-for="wiki in wikis" :key="wiki.id" :wiki="wiki"
-            :is-selected="!!selectedWikiId && selectedWikiId !== wiki.id" @select="$emit('select', wiki)" />
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 px-2">
+        <WikiCard 
+            v-for="(wiki, index) in wikis" 
+            :key="wiki.id" 
+            :wiki="wiki"
+            :delay="index * 0.1"
+            @select="$emit('select', wiki)" 
+        />
     </div>
 </template>
