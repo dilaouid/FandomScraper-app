@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import PageLayout from '../components/templates/PageLayout.vue'
 
 const router = useRouter()
 const randomGlitches = ref(Array.from({ length: 15 }, (_, i) => ({
@@ -19,63 +18,59 @@ const goHome = () => {
 </script>
 
 <template>
-    <PageLayout>
-        <template #background>
-            <!-- Dark error background with effects -->
-            <div class="fixed inset-0 bg-black overflow-hidden">
-                <!-- Dark gradient base -->
-                <div class="absolute inset-0 bg-gradient-radial from-zinc-900/30 to-black"></div>
-                
-                <!-- Error pattern overlay -->
-                <div class="absolute inset-0 error-grid opacity-20"></div>
-                
-                <!-- Glitch elements -->
-                <div v-for="glitch in randomGlitches" :key="glitch.id"
-                     class="glitch-element absolute"
-                     :style="{
-                         left: glitch.left,
-                         top: glitch.top,
-                         width: glitch.width,
-                         height: '2px',
-                         animationDelay: glitch.delay,
-                         animationDuration: glitch.duration
-                     }">
-                </div>
-                
-                <!-- Vignette overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
-            </div>
-        </template>
-
-        <div class="relative z-10 container mx-auto px-4 h-screen flex flex-col items-center justify-center text-center">
-            <div class="error-container mb-8">
-                <div class="error-code glitch-text" data-text="404">404</div>
-                <div class="error-line bg-red-600/70 h-px w-32 sm:w-48 mx-auto my-6 animate-pulse"></div>
-                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 tracking-wider">PAGE NOT FOUND</h1>
-                <p class="text-zinc-400 max-w-md mx-auto mb-8">The wiki or character you're looking for doesn't exist or has been removed.</p>
-            </div>
-            
-            <div class="actions-container">
-                <button 
-                    @click="goHome"
-                    class="home-button bg-red-900/30 hover:bg-red-900/50 border border-red-600/40 hover:border-red-500/70 text-white px-6 py-3 rounded-md transition-all duration-300 flex items-center group"
-                >
-                    <span class="mr-2 group-hover:translate-x-1 transition-transform">Return to Home</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </button>
-            </div>
-            
-            <!-- Decorative elements -->
-            <div class="error-terminal font-mono text-xs sm:text-sm text-red-500/70 mt-12 max-w-sm mx-auto overflow-hidden">
-                <div class="terminal-line">> ERROR: Route not found in database</div>
-                <div class="terminal-line">> TRACE: No matching documents</div>
-                <div class="terminal-line">> STATUS: 404</div>
-                <div class="terminal-line typing-animation">> Attempting to recover...</div>
-            </div>
+    <!-- Dark error background with effects -->
+    <div class="fixed inset-0 bg-black overflow-hidden">
+        <!-- Dark gradient base -->
+        <div class="absolute inset-0 bg-gradient-radial from-zinc-900/30 to-black"></div>
+        
+        <!-- Error pattern overlay -->
+        <div class="absolute inset-0 error-grid opacity-20"></div>
+        
+        <!-- Glitch elements -->
+        <div v-for="glitch in randomGlitches" :key="glitch.id"
+             class="glitch-element absolute"
+             :style="{
+                 left: glitch.left,
+                 top: glitch.top,
+                 width: glitch.width,
+                 height: '2px',
+                 animationDelay: glitch.delay,
+                 animationDuration: glitch.duration
+             }">
         </div>
-    </PageLayout>
+        
+        <!-- Vignette overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
+    </div>
+
+    <div class="relative z-10 container mx-auto px-4 h-screen flex flex-col items-center justify-center text-center">
+        <div class="error-container mb-8">
+            <div class="error-code glitch-text" data-text="404">404</div>
+            <div class="error-line bg-red-600/70 h-px w-32 sm:w-48 mx-auto my-6 animate-pulse"></div>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 tracking-wider">PAGE NOT FOUND</h1>
+            <p class="text-zinc-400 max-w-md mx-auto mb-8">The wiki or character you're looking for doesn't exist or has been removed.</p>
+        </div>
+        
+        <div class="actions-container">
+            <button 
+                @click="goHome"
+                class="home-button bg-red-900/30 hover:bg-red-900/50 border border-red-600/40 hover:border-red-500/70 text-white px-6 py-3 rounded-md transition-all duration-300 flex items-center group"
+            >
+                <span class="mr-2 group-hover:translate-x-1 transition-transform">Return to Home</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Decorative elements -->
+        <div class="error-terminal font-mono text-xs sm:text-sm text-red-500/70 mt-12 max-w-sm mx-auto overflow-hidden">
+            <div class="terminal-line">> ERROR: Route not found in database</div>
+            <div class="terminal-line">> TRACE: No matching documents</div>
+            <div class="terminal-line">> STATUS: 404</div>
+            <div class="terminal-line typing-animation">> Attempting to recover...</div>
+        </div>
+    </div>
 </template>
 
 <style scoped>
