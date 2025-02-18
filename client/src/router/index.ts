@@ -3,6 +3,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import HomePage from '@/pages/Home.vue'
 import CharactersPage from '@/pages/CharactersPage.vue'
 import CharacterPage from '@/pages/CharacterPage.vue'
+import NotFound from '@/pages/NotFound.vue'
 
 const routes: RouteRecordRaw[] = [
     {
@@ -21,6 +22,11 @@ const routes: RouteRecordRaw[] = [
         name: 'character',
         component: CharacterPage,
         props: true,
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'NotFound',
+        component: NotFound
     }
 ]
 
