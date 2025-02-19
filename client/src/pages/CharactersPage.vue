@@ -72,13 +72,6 @@ watch(() => data.value, (newData) => {
         <template #background>
             <!-- Base background -->
             <div class="fixed inset-0 bg-gradient-to-br from-red-950 to-black overflow-hidden">
-                <!-- Matrix rain effect -->
-                <div class="matrix-rain" aria-hidden="true">
-                    <div v-for="n in 60" :key="n" class="matrix-column"
-                        :style="{ left: `${(n - 1) * 1.67}%`, animationDelay: `-${Math.random() * 10}s` }">
-                        働 き す ぎ て 死 ぬ な 今 日 も 頑 張 ろ う
-                    </div>
-                </div>
 
                 <!-- Animated clouds -->
                 <div class="cloud-container">
@@ -164,24 +157,6 @@ watch(() => data.value, (newData) => {
 </template>
 
 <style>
-.matrix-rain {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    overflow: hidden;
-    opacity: 0.08;
-    mask-image: linear-gradient(to bottom,
-            transparent,
-            black 15%,
-            black 85%,
-            transparent);
-    -webkit-mask-image: linear-gradient(to bottom,
-            transparent,
-            black 15%,
-            black 85%,
-            transparent);
-}
-
 .cloud-container {
     position: absolute;
     width: 100%;
