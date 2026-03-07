@@ -7,7 +7,6 @@ import { useWikiStore } from '@/stores/useWikiStore'
 
 import PageLayout from '@/components/templates/PageLayout.vue'
 import CharacterGrid from '@/components/organisms/CharacterGrid.vue'
-import SearchBar from '@/components/molecules/SearchBar.vue'
 import FilterOptions from '@/components/molecules/FilterOptions.vue'
 import Pagination from '@/components/molecules/Pagination.vue'
 import BackButton from '@/components/atoms/BackButton.vue'
@@ -22,12 +21,11 @@ const queryClient = useQueryClient()
 const {
   characters,
   isLoading,
+  isRefreshing,
   isError,
   currentPage,
   totalPages,
   setPage,
-  searchTerm,
-  setSearch,
   selectedFields,
   setFields,
   totalCount
@@ -37,14 +35,10 @@ const { isLoading: isMetadataLoading, data } = useWikiMetadata(wikiName)
 const store = useWikiStore()
 
 const isPageLoading = computed(() =>
-  isLoading.value.value || isMetadataLoading.value || store.isLanguageSwitching
+  isLoading.value || (!characters.value && isMetadataLoading.value)
 )
 
-watch(isPageLoading, (newVal) => {
-    if (!newVal && store.isLanguageSwitching) {
-        store.setLanguageSwitching(false)
-    }
-})
+const activeFilterCount = computed(() => selectedFields.value.length)
 
 const handleCardClick = (characterId: number) => {
     router.push(`/${wikiName}/characters/${characterId}`)
@@ -70,89 +64,85 @@ watch(() => data.value, (newData) => {
 <template>
     <PageLayout>
         <template #background>
-            <!-- Base background -->
-            <div class="fixed inset-0 bg-gradient-to-br from-red-950 to-black overflow-hidden">
-
-                <!-- Animated clouds -->
+            <div class="fixed inset-0 overflow-hidden bg-[#050507]">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(251,113,133,0.18),transparent_24%),radial-gradient(circle_at_80%_10%,rgba(192,132,252,0.14),transparent_20%),linear-gradient(180deg,#14080b_0%,#060609_52%,#030304_100%)]"></div>
                 <div class="cloud-container">
                     <div class="cloud cloud-1" />
                     <div class="cloud cloud-2" />
                     <div class="cloud cloud-3" />
                 </div>
-
-                <!-- Pattern overlay -->
-                <div class="absolute inset-0 bg-pattern opacity-10" />
-
-                <!-- Gradient overlays -->
-                <div class="absolute inset-0 bg-gradient-to-t from-[#1a0f0f] via-transparent to-[#1a0f0f]" />
-                <div class="absolute inset-0 bg-gradient-to-r from-[#1a0f0f] via-transparent to-[#1a0f0f]" />
-
-                <!-- Blur pattern -->
-                <div
-                    class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,0,0,0.3),rgba(0,0,0,0.6))]">
-                </div>
-                <div class="absolute inset-0 backdrop-blur-[100px]"></div>
+                <div class="absolute inset-0 bg-pattern opacity-[0.08]" />
+                <div class="absolute left-[10%] top-20 h-56 w-56 rounded-full bg-red-500/10 blur-[120px]"></div>
+                <div class="absolute right-[8%] top-1/3 h-72 w-72 rounded-full bg-fuchsia-500/10 blur-[140px]"></div>
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/60"></div>
+                <div class="absolute inset-0 backdrop-blur-[90px]"></div>
             </div>
         </template>
 
-        <div class="container mx-auto px-4 py-8">
-            <!-- Header Section with glass effect -->
-            <div class="rounded-xl bg-black/30 backdrop-blur-md border border-white/10 p-6 mb-8 shadow-2xl">
-                <div class="flex flex-wrap gap-4 items-center justify-between mb-6">
-                    <div class="flex items-center gap-4">
-                        <BackButton to="/" />
-                        <WikiMetadata :wiki-name="wikiName" :character-count="totalCount" />
-                    </div>
-                </div>
-
-                <!-- Search and Filters -->
-                <div class="flex flex-wrap gap-4 items-center justify-between">
-
-                    <!-- Je retire temporairement la barre de recherche, on verra plus tard -->
-                    <!-- <SearchBar v-model="searchTerm" @search="setSearch" placeholder="Search by name or ID..."
-                        class="flex-1 min-w-[300px]" /> -->
-                    <FilterOptions v-model="selectedFields" :wiki-name="wikiName"
-                        @update:modelValue="handleFieldsChange" />
-                </div>
-            </div>
-
-            <!-- Content -->
-            <div class="relative">
-                <!-- Loading overlay -->
-                <div v-if="isPageLoading"
-                    class="absolute inset-0 flex items-center justify-center z-50 backdrop-blur-sm">
-                    <div
-                        class="p-6 max-w-sm w-full rounded-xl border border-white/20 bg-gradient-to-br from-white/20 to-white/10 shadow-xl backdrop-blur-lg relative overflow-hidden">
-                        <div class="absolute inset-0 bg-white/5 pointer-events-none"></div>
-
-                        <!-- Contenu centré -->
-                        <div class="relative flex flex-col items-center justify-center space-y-4">
-                            <!-- Spinner CSS -->
-                            <div class="w-12 h-12 border-4 border-t-transparent border-white rounded-full animate-spin">
+        <section class="page-shell py-8 sm:py-10">
+            <div class="glass-panel overflow-hidden">
+                <div class="relative p-6 sm:p-8">
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.05),transparent_56%)]"></div>
+                    <div class="relative flex flex-col gap-8">
+                        <div class="flex flex-wrap items-start justify-between gap-4">
+                            <div class="flex items-start gap-4">
+                                <BackButton to="/" />
+                                <div>
+                                    <div class="mb-3 flex flex-wrap items-center gap-3">
+                                        <span class="info-pill">{{ totalCount }} result{{ totalCount > 1 ? 's' : '' }}</span>
+                                        <span class="info-pill">{{ activeFilterCount }} filter{{ activeFilterCount > 1 ? 's' : '' }}</span>
+                                    </div>
+                                    <WikiMetadata :wiki-name="wikiName" :character-count="totalCount" />
+                                </div>
                             </div>
-                            <p class="text-white text-center text-sm font-medium">
-                                Loading characters...
-                            </p>
+                        </div>
+
+                        <div class="rounded-[24px] border border-white/10 bg-black/[0.18] p-4 sm:p-5">
+                            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                <div>
+                                    <p class="surface-label">Filters</p>
+                                    <p class="mt-2 text-sm text-white/65">Toggle the fields shown in the grid.</p>
+                                </div>
+                                <FilterOptions v-model="selectedFields" :wiki-name="wikiName"
+                                    @update:modelValue="handleFieldsChange" />
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <CharacterGrid :characters="characters || []" :loading="isLoading.value" :error="isError"
-                    @card-click="handleCardClick" :wiki-name="wikiName"
-                    @retry="() => queryClient.invalidateQueries({ queryKey: ['characters', wikiName] })" />
             </div>
 
-            <!-- Footer with Pagination -->
-            <div class="mt-8 rounded-xl bg-black/30 backdrop-blur-md border border-white/10 p-4">
-                <div class="flex flex-wrap gap-4 items-center justify-between">
-                    <div class="text-white/70">
-                        Page {{ currentPage }} of {{ totalPages }}
+            <div class="relative mt-8">
+                <div v-if="isPageLoading"
+                    class="absolute inset-0 z-50 flex items-center justify-center rounded-[28px] border border-white/10 bg-black/25 backdrop-blur-md">
+                    <div class="glass-panel max-w-sm p-6 text-center">
+                        <div class="mx-auto h-12 w-12 rounded-full border-4 border-white/15 border-t-rose-300 animate-spin"></div>
+                        <p class="mt-4 text-base font-medium text-white">Loading characters...</p>
+                        <p class="mt-2 text-sm text-white/60">Please wait...</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-4 sm:p-6">
+                    <div v-if="isRefreshing" class="mb-4 flex items-center gap-2 text-sm text-white/55">
+                        <div class="h-2 w-2 rounded-full bg-rose-300 animate-pulse"></div>
+                        Updating...
+                    </div>
+                    <CharacterGrid :characters="characters || []" :loading="isLoading" :error="isError"
+                        @card-click="handleCardClick" :wiki-name="wikiName"
+                        @retry="() => queryClient.invalidateQueries({ queryKey: ['characters', wikiName] })" />
+                </div>
+            </div>
+
+            <div class="glass-panel mt-8 p-4 sm:p-5">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="surface-label">Pagination</p>
+                        <p class="mt-1 text-white/70">Page {{ currentPage }} of {{ totalPages }}</p>
                     </div>
                     <Pagination v-if="!isPageLoading && !isError && totalPages > 0" :current-page="currentPage"
                         :total-pages="totalPages" @change="setPage" />
                 </div>
             </div>
-        </div>
+        </section>
     </PageLayout>
 </template>
 
@@ -166,69 +156,49 @@ watch(() => data.value, (newData) => {
 
 .cloud {
     position: absolute;
-    width: 300px;
-    height: 100px;
+    width: 420px;
+    height: 150px;
     background-image: url('@/assets/images/cloud.webp');
     background-size: contain;
     background-repeat: no-repeat;
-    opacity: 0.1;
+    opacity: 0.12;
+    filter: blur(2px);
 }
 
 .cloud-1 {
-    top: 10%;
-    animation: cloudFloat 30s linear infinite;
+    top: 8%;
+    animation: cloudFloat 34s linear infinite;
 }
 
 .cloud-2 {
-    top: 50%;
-    animation: cloudFloat 40s linear infinite;
-    animation-delay: -20s;
+    top: 42%;
+    animation: cloudFloat 44s linear infinite;
+    animation-delay: -18s;
 }
 
 .cloud-3 {
-    top: 80%;
-    animation: cloudFloat 35s linear infinite;
-    animation-delay: -10s;
+    top: 76%;
+    animation: cloudFloat 38s linear infinite;
+    animation-delay: -12s;
 }
 
 @keyframes cloudFloat {
     0% {
-        transform: translateX(-100%);
+        transform: translate3d(-140%, 0, 0);
     }
 
     100% {
-        transform: translateX(100vw);
-    }
-}
-
-/* Loading spinner */
-.loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 3px solid #ff000030;
-    border-top: 3px solid #ff0000;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
+        transform: translate3d(110vw, 0, 0);
     }
 }
 
 .bg-pattern {
     background-image:
-        linear-gradient(45deg, #ff000015 25%, transparent 25%),
-        linear-gradient(-45deg, #ff000015 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #ff000015 75%),
-        linear-gradient(-45deg, transparent 75%, #ff000015 75%);
-    background-size: 20px 20px;
-    background-position: 0 0, 10px 0, 10px -10px, 0px 10px;
+        linear-gradient(45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.03) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.03) 75%);
+    background-size: 28px 28px;
+    background-position: 0 0, 14px 0, 14px -14px, 0px 14px;
 }
 </style>

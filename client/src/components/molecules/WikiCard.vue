@@ -67,27 +67,19 @@ onMounted(() => {
         @click="$emit('select', wiki)"
     >
         <div 
-            class="wiki-card relative rounded-lg overflow-hidden bg-zinc-900 shadow-lg transition-all duration-300"
+            class="wiki-card relative overflow-hidden transition-all duration-300"
             :class="{ 
                 'is-hovered': isHovered
             }"
         >
             <div 
-                class="border-glow absolute -inset-px rounded-lg z-30 pointer-events-none overflow-hidden"
+                class="border-glow absolute -inset-px rounded-[29px] z-30 pointer-events-none"
                 :class="{ 'border-glow-active': isHovered }"
-            >
-                <div class="border-line top"></div>
-                <div class="border-line right"></div>
-                <div class="border-line bottom"></div>
-                <div class="border-line left"></div>
-                
-                <!-- Pulsing glow frame -->
-                <div class="pulse-frame"></div>
-            </div>
+            ></div>
             
-            <!-- Card interior -->
-            <div class="card-inner relative aspect-[2/3] overflow-hidden">
-                <!-- Image with optimization -->
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.14),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.05),transparent_24%,rgba(0,0,0,0.38)_100%)] z-[1]"></div>
+
+            <div class="card-inner relative aspect-[2/3] overflow-hidden rounded-[28px]">
                 <div class="absolute inset-0 w-full h-full">
                     <AppImage 
                         :src="wiki.imageUrl" 
@@ -99,37 +91,33 @@ onMounted(() => {
                     />
                 </div>
                 
-                <!-- Always visible wiki name with gradient background -->
-                <div class="wiki-name-container absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent py-3 px-3">
-                    <div class="wiki-name text-white text-center font-medium truncate">
+                <div class="wiki-name-container absolute bottom-0 left-0 right-0 z-10 p-4 sm:p-5">
+                    <div class="wiki-name rounded-[18px] bg-gradient-to-t from-black/88 via-black/54 to-transparent p-1 text-lg font-semibold tracking-tight text-white sm:text-xl">
                         {{ wiki.name }}
                     </div>
                 </div>
-                
-                <!-- Hover overlay -->
+
                 <div 
-                    class="absolute inset-0 bg-black/70 opacity-0 transition-opacity duration-300 z-10"
+                    class="wiki-hover-overlay absolute inset-0 z-10 opacity-0 transition-all duration-300"
                     :class="{ 'opacity-100': isHovered }"
                 >
-                    <!-- Interactive particles on hover -->
+                    <div class="hover-shine"></div>
                     <div v-if="isHovered" class="interactive-particles absolute inset-0 pointer-events-none overflow-hidden">
                         <div v-for="n in 15" :key="`particle-${n}`" 
                              class="reactive-particle"
                              :style="`--index: ${n}; --total: 15;`">
                         </div>
                     </div>
-                    
-                    <!-- Centered content on hover -->
                     <div class="absolute inset-0 flex flex-col items-center justify-center p-4">
-                        <h2 class="text-xl sm:text-2xl font-bold text-white mb-4 text-center transform opacity-0 scale-90 transition-all duration-300"
+                        <h2 class="mb-4 text-center text-2xl font-semibold tracking-tight text-white transform opacity-0 scale-90 transition-all duration-300"
                             :class="{ 'opacity-100 scale-100': isHovered }">
                             {{ wiki.name }}
                         </h2>
                         
-                        <div class="explore-button bg-red-600/20 border border-red-500/50 rounded-md py-2 px-4 flex items-center transition-all duration-300 transform opacity-0 scale-90 group"
+                        <div class="explore-button flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2.5 transition-all duration-300 transform opacity-0 scale-90 group"
                             :class="{ 'opacity-100 scale-100': isHovered }">
-                            <span class="text-white group-hover:text-red-200 transition-colors">Explore the characters</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 text-red-500 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <span class="text-white transition-colors group-hover:text-rose-100">Open</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5 text-rose-300 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                             </svg>
                         </div>
@@ -141,25 +129,32 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/*  card styling */
 .wiki-card {
     transform: translateZ(0);
     will-change: transform;
     backface-visibility: hidden;
-    filter: brightness(0.8) saturate(0.7);
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    box-shadow:
+        0 24px 70px rgba(0, 0, 0, 0.36),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    filter: brightness(0.84) saturate(0.8);
     transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     cursor: pointer;
+    backdrop-filter: blur(20px);
 }
 
-/* Card hover state */
 .wiki-card.is-hovered {
-    filter: brightness(1.1) saturate(1.2);
-    box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.5);
-    transform: translateY(-6px) scale(1.02);
+    filter: brightness(1.04) saturate(1.05);
+    box-shadow:
+        0 34px 90px rgba(0, 0, 0, 0.44),
+        0 0 40px rgba(251, 113, 133, 0.18),
+        0 0 0 1px rgba(251, 113, 133, 0.14);
+    transform: translateY(-8px) scale(1.02);
     z-index: 10;
 }
 
-/* Always visible wiki name */
 .wiki-name-container {
     z-index: 5;
     transition: all 0.3s ease;
@@ -167,10 +162,33 @@ onMounted(() => {
 
 .wiki-card.is-hovered .wiki-name-container {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(22px);
 }
 
-/* Entrance animation */
+.wiki-card.is-hovered .card-inner img {
+    transform: scale(1.14);
+    filter: saturate(1.08);
+}
+
+.wiki-hover-overlay {
+    background:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.18), transparent 24%),
+        radial-gradient(circle at 80% 10%, rgba(251, 113, 133, 0.22), transparent 26%),
+        linear-gradient(180deg, rgba(6, 6, 8, 0.24), rgba(6, 6, 8, 0.76));
+}
+
+.hover-shine {
+    position: absolute;
+    inset: -20%;
+    background: linear-gradient(115deg, transparent 34%, rgba(255, 255, 255, 0.18) 50%, transparent 66%);
+    transform: translateX(-120%) rotate(8deg);
+    transition: transform 0.65s ease;
+}
+
+.wiki-card.is-hovered .hover-shine {
+    transform: translateX(120%) rotate(8deg);
+}
+
 .wiki-card-container {
     opacity: 0;
     transform: translateY(20px);
@@ -183,134 +201,45 @@ onMounted(() => {
     transform: translateY(0);
 }
 
-/*  glow effect */
+@property --glow-angle {
+    syntax: '<angle>';
+    initial-value: 0turn;
+    inherits: false;
+}
+
 .border-glow {
+    padding: 1.5px;
+    background: conic-gradient(
+        from var(--glow-angle),
+        transparent 60%,
+        rgba(251, 113, 133, 0.18) 70%,
+        rgba(251, 113, 133, 0.65) 80%,
+        rgba(255, 200, 210, 0.95) 86%,
+        rgba(255, 255, 255, 1) 88%,
+        rgba(255, 200, 210, 0.95) 90%,
+        rgba(251, 113, 133, 0.65) 96%,
+        rgba(251, 113, 133, 0.18) 99%,
+        transparent
+    );
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.35s ease;
 }
 
 .border-glow-active {
     opacity: 1;
+    animation: glow-spin 2.8s linear infinite;
 }
 
-.border-line {
-    position: absolute;
-    background: linear-gradient(90deg, transparent, #ff3030, transparent);
-    box-shadow: 0 0 15px 3px rgba(255, 0, 0, 0.7);
-}
-
-.top, .bottom {
-    height: 3px;
-    left: 0;
-    width: 100%;
-}
-
-.left, .right {
-    width: 3px;
-    top: 0;
-    height: 100%;
-}
-
-.top {
-    top: 0;
-    animation: moveX 3s infinite;
-}
-
-.right {
-    right: 0;
-    background: linear-gradient(180deg, transparent, #ff3030, transparent);
-    animation: moveY 3s infinite;
-    animation-delay: 0.75s;
-}
-
-.bottom {
-    bottom: 0;
-    animation: moveXReverse 3s infinite;
-    animation-delay: 1.5s;
-}
-
-.left {
-    left: 0;
-    background: linear-gradient(180deg, transparent, #ff3030, transparent);
-    animation: moveYReverse 3s infinite;
-    animation-delay: 2.25s;
-}
-
-@keyframes moveX {
-    0%, 100% {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-    40%, 60% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-}
-
-@keyframes moveXReverse {
-    0%, 100% {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    40%, 60% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-}
-
-@keyframes moveY {
-    0%, 100% {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-    40%, 60% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-}
-
-@keyframes moveYReverse {
-    0%, 100% {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-    40%, 60% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-}
-
-/* Pulsing glow frame */
-.pulse-frame {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    border: 1px solid rgba(255, 48, 48, 0.3);
-    box-shadow: 
-        inset 0 0 15px 2px rgba(255, 48, 48, 0.15),
-        0 0 15px 2px rgba(255, 48, 48, 0.15);
-    animation: pulseBorder 3s infinite;
-}
-
-@keyframes pulseBorder {
-    0%, 100% {
-        opacity: 0.3;
-    }
-    50% {
-        opacity: 0.7;
-    }
+@keyframes glow-spin {
+    to { --glow-angle: 1turn; }
 }
 
 .interactive-particles {
@@ -326,13 +255,13 @@ onMounted(() => {
     position: absolute;
     width: 4px;
     height: 4px;
-    background: #ff5252;
+    background: #fb7185;
     border-radius: 50%;
     top: 50%;
     left: 50%;
     opacity: 0;
     transform: translate(-50%, -50%);
-    box-shadow: 0 0 10px 2px rgba(255, 48, 48, 0.6);
+    box-shadow: 0 0 10px 2px rgba(251, 113, 133, 0.45);
     
     animation: particleExpand var(--duration) ease-out infinite;
     animation-delay: var(--delay);
@@ -360,7 +289,7 @@ onMounted(() => {
 }
 
 .explore-button:hover {
-    background-color: rgba(239, 68, 68, 0.3);
-    box-shadow: 0 0 15px 2px rgba(239, 68, 68, 0.2);
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 15px 2px rgba(251, 113, 133, 0.12);
 }
 </style>

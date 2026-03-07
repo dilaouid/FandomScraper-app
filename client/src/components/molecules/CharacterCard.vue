@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Character } from '@/types'
 import { useWikiStore } from '@/stores/useWikiStore'
 import { API_BASE_URL } from '@/config/api'
@@ -8,76 +8,74 @@ const props = defineProps<{
   character: Character
 }>()
 
+const emit = defineEmits<{
+  (e: 'select', id: number): void
+  (e: 'image-change', index: number): void
+}>()
+
 const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgMjAwIDIwMCI+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiMxYTBmMGYiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4NSIgcj0iMzUiIGZpbGw9IiM0YjAwMDAiLz4KICA8cmVjdCB4PSI1MCIgeT0iMTMwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjQwIiByeD0iMjAiIGZpbGw9IiM0YjAwMDAiLz4KPC9zdmc+'
 
+const store = useWikiStore()
 const currentImageIndex = ref(0)
 const imageLoaded = ref(false)
 const isImageLoading = ref(true)
-const store = useWikiStore()
-
-
-const setImageIndex = (index: number) => {
-  currentImageIndex.value = index
-}
+const finalImageUrl = ref<string>(placeholderImage)
+const resolvedThumbnails = ref(new Map<string, string>())
 
 const getImageUrl = (url: string) => {
   if (url.startsWith('data:')) return url
-  const referer = store.getBaseUrl(props.character.url)
 
+  const referer = store.getBaseUrl(props.character.url)
   return `${API_BASE_URL}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
 }
 
-/**
- * Pour une URL donnée, on effectue une requête HEAD afin de vérifier
- * si la ressource existe. En cas de code 404 ou d'erreur, on retourne
- * l'URL proxy.
- */
 const resolveImageUrl = async (url: string): Promise<string> => {
   if (url.startsWith('data:')) return url
-  let finalUrl = url
+
   try {
     const response = await fetch(url, { method: 'HEAD' })
-    if (response.status === 404) {
-      finalUrl = getImageUrl(url)
-    }
-  } catch (error) {
-    finalUrl = getImageUrl(url)
+    return response.status === 404 ? getImageUrl(url) : url
+  } catch {
+    return getImageUrl(url)
   }
-  return finalUrl
 }
-
-// --- Logique pour l'image principale ---
-const finalImageUrl = ref<string>(placeholderImage)
 
 const updateImage = async () => {
   const baseUrl = props.character.data?.images?.[currentImageIndex.value]
+
   if (!baseUrl) {
     finalImageUrl.value = placeholderImage
     isImageLoading.value = false
     imageLoaded.value = false
     return
   }
+
   if (baseUrl.startsWith('data:')) {
     finalImageUrl.value = baseUrl
     isImageLoading.value = false
     imageLoaded.value = true
     return
   }
+
   isImageLoading.value = true
   imageLoaded.value = false
 
   const resolvedUrl = await resolveImageUrl(baseUrl)
-  const img = new Image()
-  img.onload = () => {
+  const image = new Image()
+
+  image.onload = () => {
     isImageLoading.value = false
     imageLoaded.value = true
     finalImageUrl.value = resolvedUrl
   }
-  img.onerror = () => {
+
+  image.onerror = () => {
     isImageLoading.value = false
+    imageLoaded.value = false
     finalImageUrl.value = placeholderImage
   }
-  img.src = resolvedUrl
+
+  image.src = resolvedUrl
 }
 
 watch(
@@ -88,45 +86,33 @@ watch(
   { immediate: true }
 )
 
-const displayImage = computed(() => finalImageUrl.value)
+watch(
+  () => props.character.data?.images,
+  (images) => {
+    if (!images?.length) return
 
-
-// --- Logique de résolution pour les miniatures ---
-const resolvedThumbnails = ref(new Map<string, string>())
-
-watch(() => props.character.data?.images, (images) => {
-  if (images && images.length) {
-    images.forEach((imgUrl: string) => {
-      // On résout l'URL si ce n'est pas déjà fait
-      if (!resolvedThumbnails.value.has(imgUrl)) {
-        resolveImageUrl(imgUrl).then(resolved => {
-          resolvedThumbnails.value.set(imgUrl, resolved)
+    images.forEach((imageUrl: string) => {
+      if (!resolvedThumbnails.value.has(imageUrl)) {
+        resolveImageUrl(imageUrl).then((resolvedUrl) => {
+          resolvedThumbnails.value.set(imageUrl, resolvedUrl)
         })
       }
     })
-  }
-}, { immediate: true })
+  },
+  { immediate: true }
+)
 
-// Expose un tableau des URLs résolues pour les miniatures
-const resolvedThumbnailUrls = computed(() => {
-  return props.character.data?.images?.map((imgUrl: string) => {
-    return resolvedThumbnails.value.get(imgUrl) || imgUrl
-  }) || []
-})
+const displayImage = computed(() => finalImageUrl.value)
 
+const resolvedThumbnailUrls = computed(() =>
+  props.character.data?.images?.map((imageUrl: string) =>
+    resolvedThumbnails.value.get(imageUrl) || imageUrl
+  ) || []
+)
 
-// --- Navigation entre images ---
-const nextImage = () => {
-  if (!props.character.data?.images) return
-  currentImageIndex.value = (currentImageIndex.value + 1) % props.character.data.images.length
-}
-
-const previousImage = () => {
-  if (!props.character.data?.images) return
-  currentImageIndex.value = currentImageIndex.value === 0
-    ? props.character.data.images.length - 1
-    : currentImageIndex.value - 1
-}
+const statusLabel = computed(() => props.character.data?.status || 'Unknown')
+const genderLabel = computed(() => props.character.data?.gender || '')
+const imageCount = computed(() => props.character.data?.images?.length || 0)
 
 const statusIcon = computed(() => {
   switch (props.character.data?.status?.toLowerCase()) {
@@ -145,7 +131,6 @@ const statusIcon = computed(() => {
 })
 
 const genderIcon = computed(() => {
-  console.log(props.character.data?.gender)
   switch (props.character.data?.gender?.toLowerCase()) {
     case 'male':
     case 'masculin':
@@ -158,6 +143,25 @@ const genderIcon = computed(() => {
   }
 })
 
+const setImageIndex = (index: number) => {
+  currentImageIndex.value = index
+  emit('image-change', index)
+}
+
+const nextImage = () => {
+  if (!props.character.data?.images?.length) return
+  setImageIndex((currentImageIndex.value + 1) % props.character.data.images.length)
+}
+
+const previousImage = () => {
+  if (!props.character.data?.images?.length) return
+  setImageIndex(
+    currentImageIndex.value === 0
+      ? props.character.data.images.length - 1
+      : currentImageIndex.value - 1
+  )
+}
+
 let touchStartX = 0
 const touchThreshold = 50
 
@@ -167,14 +171,17 @@ const handleTouchStart = (event: TouchEvent) => {
 
 const handleTouchMove = (event: TouchEvent) => {
   if (!touchStartX) return
+
   const touchEndX = event.touches[0].clientX
-  const diff = touchStartX - touchEndX
-  if (Math.abs(diff) > touchThreshold) {
-    if (diff > 0) {
+  const delta = touchStartX - touchEndX
+
+  if (Math.abs(delta) > touchThreshold) {
+    if (delta > 0) {
       nextImage()
     } else {
       previousImage()
     }
+
     touchStartX = 0
   }
 }
@@ -183,189 +190,237 @@ const handleTouchEnd = () => {
   touchStartX = 0
 }
 
-const emit = defineEmits<{
-  (e: 'select', id: number): void;
-  (e: 'image-change', index: number): void;
-}>()
-
 const handleCardClick = () => {
   emit('select', props.character.id)
 }
 </script>
 
 <template>
-  <div class="relative group">
-    <!-- Zone principale de la carte : cliquable pour accéder à la fiche personnage -->
-    <div class="card-clickable-area relative rounded-xl overflow-hidden cursor-pointer" @click="handleCardClick">
-      <!-- Fond avec motif japonais -->
-      <div class="absolute inset-0">
-        <div class="japanese-pattern absolute inset-0 bg-cover bg-center" />
-      </div>
+  <article class="character-card group">
+    <div class="card-shell" @click="handleCardClick">
+      <div class="card-frame"></div>
+      <div class="card-pattern"></div>
+      <div class="card-spotlight"></div>
 
-      <!-- Conteneur de l'image avec overlay -->
-      <div class="relative aspect-square w-full" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
-        @touchend="handleTouchEnd">
-        <!-- Fond rouge semi-transparent -->
-        <div class="absolute inset-0 bg-gradient-to-br from-red-900/40 to-red-950/20 backdrop-blur-sm"></div>
+      <div class="relative aspect-[0.8] w-full overflow-hidden rounded-[26px]" @touchstart="handleTouchStart"
+        @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+        <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),transparent_22%,rgba(0,0,0,0.5)_100%)]"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(251,113,133,0.22),transparent_38%)]"></div>
 
-        <!-- Image du personnage -->
         <div class="character-container absolute inset-0">
-          <div
-            class="character-image transition-transform duration-300 transform scale-105 filter grayscale contrast-110 group-hover:scale-110 group-hover:filter-none"
-            :style="{
-              backgroundImage: `url(${displayImage})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'top center',
-              backgroundRepeat: 'no-repeat'
-            }">
+          <div class="character-image" :class="{ 'is-loaded': imageLoaded }" :style="{
+            backgroundImage: `url(${displayImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'top center',
+            backgroundRepeat: 'no-repeat'
+          }"></div>
+        </div>
+
+        <div class="absolute right-4 top-4 z-20 flex items-start gap-2 pointer-events-none">
+          <div class="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 text-xs text-white/60 backdrop-blur-md">
+            {{ imageCount }} img
+          </div>
+          <div class="flex gap-2">
+            <span v-if="character.data?.status" class="character-badge" :title="statusLabel">
+              {{ statusIcon }}
+            </span>
+            <span v-if="character.data?.gender" class="character-badge" :title="genderLabel">
+              {{ genderIcon }}
+            </span>
           </div>
         </div>
 
-        <!-- Overlay en bas avec le nom et, le cas échéant, le kanji -->
-        <div
-          class="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-20">
-          <h3 class="text-white font-semibold truncate text-lg">
-            {{ character.name }}
-          </h3>
-          <p v-if="character.data?.kanji" class="text-white/80 text-sm mt-1 font-japanese truncate">
-            {{ character.data.kanji }}
-          </p>
+        <div class="card-content absolute inset-x-0 bottom-0 z-20 p-4 sm:p-5">
+          <div class="pointer-events-none rounded-[18px] bg-gradient-to-t from-black/88 via-black/52 to-transparent p-1">
+            <h3 class="truncate text-lg font-semibold tracking-tight text-white sm:text-xl">
+              {{ character.name }}
+            </h3>
+            <p v-if="character.data?.kanji" class="font-japanese mt-1 truncate text-sm text-white/65">
+              {{ character.data.kanji }}
+            </p>
+          </div>
         </div>
 
-        <!-- Badges de status et de genre -->
-        <div class="absolute top-2 right-2 flex gap-2 pointer-events-none  z-20">
-          <span v-if="character.data?.status"
-            class="character-badge w-8 h-8 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm border border-white/10">
-            {{ statusIcon }}
-          </span>
-          <span v-if="character.data?.gender"
-            class="character-badge w-8 h-8 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm border border-white/10">
-            {{ genderIcon }}
-          </span>
-        </div>
-
-        <!-- Loader sur l'image pendant le chargement -->
         <div v-if="isImageLoading"
-          class="absolute inset-0 flex items-center justify-center z-30 backdrop-blur-sm bg-black/30">
-          <div class="image-loader">
-            <svg class="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-              </path>
-            </svg>
-          </div>
+          class="absolute inset-0 z-30 flex items-center justify-center bg-black/25 backdrop-blur-sm">
+          <svg class="h-8 w-8 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
         </div>
       </div>
     </div>
 
-    <!-- Zone des miniatures en dehors de la zone cliquable -->
-    <div class="mt-2 flex justify-center gap-2">
-      <div v-for="(image, index) in character.data?.images" :key="index" @click="setImageIndex(index)"
-        class="w-12 h-12 rounded-md overflow-hidden border-2 transition-transform duration-300 cursor-pointer"
-        :class="currentImageIndex === index ? 'border-red-500 scale-110' : 'border-transparent hover:border-red-500/50'"
-        :style="{
+    <div v-if="imageCount > 1" class="pointer-events-auto mt-3 flex justify-center gap-2 px-2">
+      <button v-for="(_, index) in character.data?.images" :key="index" type="button" @click.stop="setImageIndex(index)"
+        class="preview-thumbnail" :class="{ active: currentImageIndex === index }" :style="{
           backgroundImage: `url(${resolvedThumbnailUrls[index]})`,
           backgroundSize: 'cover',
           backgroundPosition: 'top center'
         }">
-      </div>
+      </button>
     </div>
-  </div>
+  </article>
 </template>
 
 <style scoped>
-.image-navigation {
-  pointer-events: auto;
+.character-card {
+  position: relative;
 }
 
-.japanese-pattern {
+.card-shell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  cursor: pointer;
+}
+
+.group:hover .card-shell {
+  transform: translateY(-8px) scale(1.015);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.card-frame,
+.card-pattern,
+.card-spotlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.card-frame {
+  z-index: 1;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.card-pattern {
+  z-index: 1;
   background-image: url('@/assets/images/background.jpg');
-  transform: scale(1.5);
-  opacity: 0.6;
-  filter: brightness(0.7) sepia(0.2) hue-rotate(-10deg);
-  transition: all 0.3s ease;
-  animation: patternScroll 20s linear infinite paused;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.3;
+  transform: scale(1.35);
+  filter: brightness(0.45) sepia(0.18) hue-rotate(-12deg);
+  transition: opacity 0.35s ease, filter 0.35s ease;
+  animation: patternScroll 18s linear infinite paused;
 }
 
-.group:hover .japanese-pattern {
-  opacity: 0.85;
-  filter: brightness(1) sepia(0.1) hue-rotate(-10deg);
+.group:hover .card-pattern {
+  opacity: 0.55;
+  filter: brightness(0.65) sepia(0.12) hue-rotate(-10deg);
   animation-play-state: running;
 }
 
-.group:not(:hover) .japanese-pattern {
-  animation-play-state: paused;
+.card-spotlight {
+  z-index: 2;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.16), transparent 24%),
+    radial-gradient(circle at 84% 12%, rgba(251, 113, 133, 0.2), transparent 26%);
+  opacity: 0.8;
 }
 
 .character-container {
   isolation: isolate;
-  z-index: 2;
+  z-index: 3;
 }
 
 .character-image {
   position: absolute;
   inset: 0;
-  transition: all 0.3s ease;
   transform: scale(1.05);
-  filter: grayscale(80%) contrast(1.1);
+  filter: grayscale(78%) contrast(1.1);
+  transition: transform 0.35s ease, filter 0.35s ease, opacity 0.35s ease;
+  opacity: 0.9;
+  animation: subtleGlow 2.4s ease-in-out infinite;
 }
 
-/* Glow effect pour les PNG */
-.character-image {
-  animation: subtleGlow 2s ease-in-out infinite;
+.character-image.is-loaded {
+  opacity: 1;
 }
 
 .group:hover .character-image {
   transform: scale(1.1);
-  filter: grayscale(0%) contrast(1);
-  animation: hoverGlow 2s ease-in-out infinite;
+  filter: grayscale(0%) contrast(1.02);
+  animation: hoverGlow 1.9s ease-in-out infinite;
+}
+
+.card-content {
+  pointer-events: none;
+}
+
+.character-badge {
+  display: inline-flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(12px);
+}
+
+.font-japanese {
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+.preview-thumbnail {
+  height: 3rem;
+  width: 3rem;
+  border-radius: 0.95rem;
+  border: 1px solid transparent;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.preview-thumbnail:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.preview-thumbnail.active {
+  transform: translateY(-4px) scale(1.06);
+  border-color: rgba(251, 113, 133, 0.8);
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(251, 113, 133, 0.35);
 }
 
 @keyframes subtleGlow {
-
   0%,
   100% {
-    filter: grayscale(80%) contrast(1.1) drop-shadow(0 0 2px rgba(255, 0, 0, 0.2));
+    filter: grayscale(78%) contrast(1.1) drop-shadow(0 0 6px rgba(255, 0, 76, 0.14));
   }
 
   50% {
-    filter: grayscale(80%) contrast(1.1) drop-shadow(0 0 4px rgba(255, 0, 0, 0.3));
+    filter: grayscale(78%) contrast(1.1) drop-shadow(0 0 12px rgba(255, 0, 76, 0.22));
   }
 }
 
 @keyframes hoverGlow {
-
   0%,
   100% {
-    filter: grayscale(0%) drop-shadow(0 0 5px rgba(255, 0, 0, 0.4));
+    filter: grayscale(0%) drop-shadow(0 0 10px rgba(251, 113, 133, 0.3));
   }
 
   50% {
-    filter: grayscale(0%) drop-shadow(0 0 10px rgba(255, 0, 0, 0.6));
+    filter: grayscale(0%) drop-shadow(0 0 18px rgba(251, 113, 133, 0.44));
   }
-}
-
-.content-layer {
-  pointer-events: none;
-}
-
-.content-layer button {
-  pointer-events: auto;
-}
-
-.character-badge {
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  background-color: rgb(0 0 0 / 0.4);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgb(255 255 255 / 0.1);
-  pointer-events: none;
 }
 
 @keyframes patternScroll {
@@ -376,38 +431,5 @@ const handleCardClick = () => {
   100% {
     background-position: -200% center;
   }
-}
-
-.font-japanese {
-  font-family: "Noto Sans JP", sans-serif;
-}
-
-.preview-thumbnail {
-  transform: translateY(0);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  padding: 4px;
-  pointer-events: auto;
-}
-
-.preview-thumbnail:hover {
-  transform: translateY(-4px);
-}
-
-.preview-thumbnail.active {
-  position: relative;
-}
-
-.preview-thumbnail.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  background: #ef4444;
-  border-radius: 50%;
-  box-shadow: 0 0 8px #ef4444;
 }
 </style>

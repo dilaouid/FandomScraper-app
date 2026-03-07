@@ -1,25 +1,25 @@
 <template>
     <footer class="relative mt-auto">
-        <div class="absolute -top-20 inset-x-0 h-20 bg-gradient-to-t from-black/80 to-transparent"></div>
+        <div class="absolute inset-x-0 -top-20 h-20 bg-gradient-to-t from-black/80 to-transparent"></div>
 
-        <div class="relative bg-black/80 backdrop-blur-xl border-t border-red-500/10">
-            <div class="container mx-auto px-4 py-8">
-                <div class="flex flex-col items-center text-center gap-6">
+        <div class="relative border-t border-white/10 bg-black/45 backdrop-blur-2xl">
+            <div class="page-shell py-8">
+                <div class="glass-panel-soft flex flex-col items-center gap-6 px-6 py-8 text-center">
                     <div>
-                        <h3 class="text-xl font-bold text-white mb-2">
+                        <p class="surface-label">Crafted by</p>
+                        <h3 class="mt-2 text-xl font-semibold text-white">
                             Created by
                             <a href="https://github.com/dilaouid"
-                                class="text-red-400 hover:text-red-300 transition-colors" target="_blank"
+                                class="text-rose-300 transition-colors hover:text-rose-200" target="_blank"
                                 rel="noopener noreferrer">
                                 @dilaouid
                             </a>
                         </h3>
                     </div>
 
-                    <!-- Liens -->
                     <div class="flex flex-wrap justify-center gap-4">
                         <a href="https://github.com/dilaouid/FandomScraper"
-                            class="px-4 py-2 rounded-lg bg-red-950/30 hover:bg-red-900/30 text-white/90 hover:text-white transition-all border border-red-500/10 hover:border-red-500/20"
+                            class="premium-button"
                             target="_blank" rel="noopener noreferrer">
                             <span class="flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -31,7 +31,7 @@
                             </span>
                         </a>
                         <a href="https://github.com/dilaouid/FandomScraper-app"
-                            class="px-4 py-2 rounded-lg bg-red-950/30 hover:bg-red-900/30 text-white/90 hover:text-white transition-all border border-red-500/10 hover:border-red-500/20"
+                            class="premium-button"
                             target="_blank" rel="noopener noreferrer">
                             <span class="flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -44,8 +44,7 @@
                         </a>
                     </div>
 
-                    <!-- Thank you Fandom -->
-                    <div class="text-white/60 text-sm max-w-2xl">
+                    <div class="max-w-2xl text-sm text-white/60">
                         <p>
                             Special thanks to Fandom wikis and their dedicated contributors. This project wouldn't exist
                             without their hard work maintaining the wikis.

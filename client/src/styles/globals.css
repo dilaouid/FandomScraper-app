@@ -4,36 +4,36 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 5%;
+    --foreground: 210 40% 98%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 10%;
+    --card-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 0 0% 100% / 0.12;
+    --input: 0 0% 100% / 0.12;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 356 82% 60%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 345 34% 14%;
+    --secondary-foreground: 210 40% 98%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 272 37% 18%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --ring: 222.2 84% 4.9%;
+    --ring: 356 82% 60%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
   }
 
   .dark {
@@ -73,7 +73,25 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at top, rgba(239, 68, 68, 0.16), transparent 26%),
+      radial-gradient(circle at 80% 18%, rgba(168, 85, 247, 0.14), transparent 22%),
+      linear-gradient(180deg, #12090b 0%, #08080f 55%, #040405 100%);
+    background-attachment: fixed;
+    color-scheme: dark;
+  }
+}
+
+@layer base {
+  ::selection {
+    background: rgba(248, 113, 113, 0.32);
+    color: white;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 }
 
@@ -99,4 +117,70 @@
   50% {
     opacity: 0.5;
   }
+}
+
+@layer components {
+  .page-shell {
+    @apply relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .glass-panel {
+    @apply rounded-[28px] border border-white/10 bg-white/[0.06] shadow-2xl shadow-black/40 backdrop-blur-xl;
+    box-shadow:
+      0 24px 80px rgba(0, 0, 0, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-panel-soft {
+    @apply rounded-3xl border border-white/10 bg-white/[0.045] backdrop-blur-lg;
+    box-shadow:
+      0 16px 60px rgba(0, 0, 0, 0.26),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .hero-kicker {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.32em] text-white/60;
+  }
+
+  .hero-title {
+    @apply text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl;
+    line-height: 0.98;
+  }
+
+  .hero-highlight {
+    background: linear-gradient(135deg, #fff 0%, #fda4af 36%, #fb7185 72%, #c084fc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero-subtitle {
+    @apply max-w-2xl text-sm leading-7 text-white/65 sm:text-base;
+  }
+
+  .surface-label {
+    @apply text-xs font-medium uppercase tracking-[0.28em] text-white/45;
+  }
+
+  .info-pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-sm text-white/75;
+  }
+
+  .premium-button {
+    @apply inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.08] px-4 py-2.5 text-sm font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.12];
+  }
+}
+
+.ambient-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+}
+
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.65'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
 }

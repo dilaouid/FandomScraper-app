@@ -42,13 +42,13 @@ const handleLanguageChange = async () => {
 
 <template>
     <div>
-        <div class="flex items-center gap-4">
-            <h1 class="text-3xl font-bold text-white">
+        <div class="flex flex-wrap items-center gap-3">
+            <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
                 {{ formatWikiName(wikiName) }}
             </h1>
 
             <a v-if="metadata" :href="`${metadata.url}`" target="_blank"
-                class="text-white/70 hover:text-white transition-colors" title="Visit Wiki">
+                class="premium-button h-10 px-3 py-0 text-white/80 hover:text-white" title="Visit Wiki">
                 <Link class="w-5 h-5" />
             </a>
 
@@ -56,17 +56,14 @@ const handleLanguageChange = async () => {
                 :current-lang="store.currentLanguage as 'en' | 'fr'" @click="handleLanguageChange" />
         </div>
 
-        <div class="text-white/70 mt-1 flex gap-4">
-            <p v-if="metadata?.count">
+        <div class="mt-4 flex flex-wrap gap-2">
+            <span v-if="metadata?.count" class="info-pill">
                 {{ metadata.count }} available character{{ metadata.count > 1 ? 's' : '' }}
-            </p>
-            <template v-if="(metadata?.availableLanguages?.length ?? 0) > 1">
-                <span v-if="metadata?.count && metadata">•</span>
-                <p>
-                    {{ metadata?.availableLanguages?.length ?? 0 }} available
-                    language{{ (metadata?.availableLanguages?.length ?? 0) > 1 ? 's' : '' }}
-                </p>
-            </template>
+            </span>
+            <span v-if="(metadata?.availableLanguages?.length ?? 0) > 1" class="info-pill">
+                {{ metadata?.availableLanguages?.length ?? 0 }} available
+                language{{ (metadata?.availableLanguages?.length ?? 0) > 1 ? 's' : '' }}
+            </span>
         </div>
     </div>
 </template>

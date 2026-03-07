@@ -76,7 +76,13 @@ export function useCharacters(wikiName: string) {
         structuralSharing: true
     })
 
-    const isCharactersLoading = computed(() => charactersQuery.isLoading || charactersQuery.isFetching)
+    const isInitialLoading = computed(() =>
+        charactersQuery.isLoading.value && !charactersQuery.data.value
+    )
+
+    const isRefreshing = computed(() =>
+        charactersQuery.isFetching.value && !!charactersQuery.data.value
+    )
 
     watch([searchTerm], () => {
         currentPage.value = 1
@@ -110,7 +116,8 @@ export function useCharacters(wikiName: string) {
 
     return {
         characters: charactersQuery.data,
-        isLoading: isCharactersLoading,
+        isLoading: isInitialLoading,
+        isRefreshing,
         isError: charactersQuery.isError,
         error: charactersQuery.error,
         currentPage,

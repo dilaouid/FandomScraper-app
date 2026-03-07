@@ -66,12 +66,11 @@ onMounted(() => {
 
 
 <template>
-    <div class="relative rounded-2xl overflow-hidden bg-gradient-to-b from-red-950/20 to-black/40">
-        <!-- Main Image -->
-        <div class="relative aspect-square lg:aspect-[4/3] overflow-hidden">
+    <div class="glass-panel overflow-hidden p-3 sm:p-4">
+        <div class="relative overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(0,0,0,0.3))] aspect-square lg:aspect-[4/3]">
             <div v-if="loading" 
-                 class="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-                <div class="w-8 h-8 border-2 border-red-500/20 border-t-red-500 rounded-full animate-spin" />
+                 class="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-20">
+                <div class="h-8 w-8 rounded-full border-2 border-white/15 border-t-rose-300 animate-spin" />
             </div>
             <transition
                 enter-active-class="transition-opacity duration-300 ease-out"
@@ -84,54 +83,43 @@ onMounted(() => {
                     :key="currentIndex"
                     :src="displayImages[currentIndex]" 
                     :alt="`Character image ${currentIndex + 1}`"
-                    class="w-full h-full object-contain bg-gradient-to-b from-transparent to-black/20" 
+                    class="w-full h-full object-contain bg-[radial-gradient(circle_at_top,rgba(251,113,133,0.18),transparent_34%)]" 
                 />
             </transition>
 
-            <!-- Thumbnails -->
             <div v-if="images.length > 1"
-                class="absolute bottom-0 inset-x-0 p-6 flex justify-center gap-3 
-                       bg-gradient-to-t from-black/80 via-black/50 to-transparent">
+                class="absolute bottom-0 inset-x-0 flex justify-center gap-3 bg-gradient-to-t from-black/80 via-black/45 to-transparent p-6">
                 <button 
                     v-for="(img, index) in displayImages" 
                     :key="index"
                     @click="currentIndex = index"
-                    class="relative group overflow-hidden"
+                    class="relative overflow-hidden rounded-2xl"
                 >
-                    <div class="w-14 h-14 rounded-lg overflow-hidden 
-                              ring-2 transition-all duration-300
-                              shadow-lg shadow-black/50"
+                    <div class="h-14 w-14 overflow-hidden rounded-2xl border transition-all duration-300 shadow-lg shadow-black/50"
                          :class="[
                             index === currentIndex 
-                                ? 'ring-red-500/70 scale-110' 
-                                : 'ring-white/20 group-hover:ring-white/40'
+                                ? 'border-rose-300/70 scale-110' 
+                                : 'border-white/10 hover:border-white/30'
                          ]">
                         <img :src="img" 
                              class="w-full h-full object-cover 
                                     transition-transform duration-300
-                                    group-hover:scale-110" />
+                                    hover:scale-110" />
                     </div>
                 </button>
             </div>
         </div>
 
-        <!-- Navigation buttons -->
         <template v-if="images.length > 1">
             <button @click="prev"
-                class="absolute left-4 top-1/2 -translate-y-1/2 p-3 
-                       rounded-full bg-black/40 backdrop-blur-sm 
-                       hover:bg-black/60 transition-all duration-300
-                       group shadow-lg shadow-black/50">
+                class="absolute left-7 top-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-black/35 p-3 backdrop-blur-md transition-all duration-300 group shadow-lg shadow-black/50 hover:bg-black/60">
                 <ChevronLeft class="w-5 h-5 text-white 
                                    transition-transform duration-300
                                    group-hover:-translate-x-0.5" />
             </button>
 
             <button @click="next"
-                class="absolute right-4 top-1/2 -translate-y-1/2 p-3 
-                       rounded-full bg-black/40 backdrop-blur-sm 
-                       hover:bg-black/60 transition-all duration-300
-                       group shadow-lg shadow-black/50">
+                class="absolute right-7 top-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-black/35 p-3 backdrop-blur-md transition-all duration-300 group shadow-lg shadow-black/50 hover:bg-black/60">
                 <ChevronRight class="w-5 h-5 text-white 
                                     transition-transform duration-300
                                     group-hover:translate-x-0.5" />
