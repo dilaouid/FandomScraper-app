@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { Character } from '@/types'
-import { useWikiStore } from '@/stores/useWikiStore';
-const apiUrl = import.meta.env.VITE_API_URL
+import { useWikiStore } from '@/stores/useWikiStore'
+import { API_BASE_URL } from '@/config/api'
 
 const props = defineProps<{
   character: Character
@@ -24,7 +24,7 @@ const getImageUrl = (url: string) => {
   if (url.startsWith('data:')) return url
   const referer = store.getBaseUrl(props.character.url)
 
-  return `${apiUrl}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
+  return `${API_BASE_URL}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
 }
 
 /**

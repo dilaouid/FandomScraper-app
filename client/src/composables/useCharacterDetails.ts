@@ -3,8 +3,7 @@ import { ref } from "vue"
 import { useQuery } from "@tanstack/vue-query"
 import { useWikiStore } from "@/stores/useWikiStore"
 import { useApiTrackingStore } from '@/stores/useApiTrackingStore'
-
-const apiUrl = import.meta.env.VITE_API_URL
+import { API_BASE_URL } from '@/config/api'
 
 export function useCharacterDetails(wikiName: string, characterId: number, initialFields: string[], initialArrayFields: string[]) {
     const { currentLanguage } = useWikiStore()
@@ -27,9 +26,9 @@ export function useCharacterDetails(wikiName: string, characterId: number, initi
                 lang: paramsObject.lang
             })
 
-            apiTrackingStore.trackApiCall(`${apiUrl}/${wikiName}/characters/id/${characterId}`, paramsObject)
+            apiTrackingStore.trackApiCall(`${API_BASE_URL}/${wikiName}/characters/id/${characterId}`, paramsObject)
 
-            const response = await fetch(`${apiUrl}/${wikiName}/characters/id/${characterId}?${params}`)
+            const response = await fetch(`${API_BASE_URL}/${wikiName}/characters/id/${characterId}?${params}`)
             if (!response.ok)
                 throw new Error(response.status === 404 ? 'Character not found' : 'An error occurred')
 

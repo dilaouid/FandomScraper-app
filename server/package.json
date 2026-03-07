@@ -7,18 +7,18 @@
     "start": "node --experimental-specifier-resolution=node dist/app.js"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.8",
-    "dotenv": "^16.4.7",
-    "fandomscraper": "^1.0.9",
-    "hono": "^4.7.1",
+    "@hono/node-server": "^1.19.11",
+    "dotenv": "^16.6.1",
+    "fandomscraper": "^1.1.1",
+    "hono": "^4.12.5",
     "hono-rate-limiter": "^0.4.2",
-    "zod": "^3.24.2"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/node": "^20.17.19",
+    "@types/node": "^20.19.37",
     "ts-node-dev": "^2.0.0",
-    "tsup": "^8.3.6",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }

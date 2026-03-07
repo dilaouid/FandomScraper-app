@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { useWikiStore } from '@/stores/useWikiStore'
 
-const apiUrl = import.meta.env.VITE_API_URL
+import { API_BASE_URL } from '@/config/api'
 const store = useWikiStore()
 
 const props = defineProps<{
@@ -22,12 +22,12 @@ const resolveImageUrl = async (url: string): Promise<string> => {
         const response = await fetch(url, { method: 'HEAD' })
         if (response.status === 404) {
             const referer = store.getBaseUrl(url)
-            return `${apiUrl}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
+            return `${API_BASE_URL}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
         }
         return url
     } catch (error) {
         const referer = store.getBaseUrl(url)
-        return `${apiUrl}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
+        return `${API_BASE_URL}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
     }
 }
 

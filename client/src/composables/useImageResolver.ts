@@ -1,8 +1,8 @@
 import { ref } from 'vue'
 import { useWikiStore } from '@/stores/useWikiStore'
+import { API_BASE_URL } from '@/config/api'
 
 export function useImageResolver() {
-    const apiUrl = import.meta.env.VITE_API_URL
     const store = useWikiStore()
 
     const resolvedUrls = ref<string[]>([])
@@ -13,12 +13,12 @@ export function useImageResolver() {
             const response = await fetch(url, { method: 'HEAD' })
             if (response.status === 404) {
                 const referer = store.getBaseUrl(url)
-                return `${apiUrl}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
+                return `${API_BASE_URL}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
             }
             return url
         } catch (error) {
             const referer = store.getBaseUrl(url)
-            return `${apiUrl}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
+            return `${API_BASE_URL}/proxy?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ''}`
         }
     }
 
